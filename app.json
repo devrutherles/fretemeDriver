@@ -1,0 +1,27 @@
+{
+  "expo": {
+    "name": "Freteme",
+    "description": "Freteme ",
+    "scheme": "freteme",
+    "slug": "freteme",
+    "privacy": "public",
+    "version": "0.0.1",
+    "platforms": ["android", "ios"],
+    "orientation": "portrait",
+    "primaryColor": "#000000",
+    "icon": "src/assets/icon.png",
+    "splash": {
+      "backgroundColor": "#000000",
+      "image": "src/assets/splash.png",
+      "resizeMode": "contain"
+    },
+    "assetBundlePatterns": ["**/*"],
+    "android": {
+      "versionCode": 1
+    },
+    "ios": {
+      "buildNumber": "0.0.1",
+      "supportsTablet": true
+    }
+  }
+}
