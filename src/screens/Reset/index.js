@@ -1,57 +1,108 @@
+import React, { useContext, useEffect } from "react";
 import {
-  Center,
-  HStack,
-  Image,
-  Input,
-  InputGroup,
-  Text,
-  VStack,
-} from "native-base";
-import {
-  CodeField,
-  Cursor,
-  useBlurOnFulfill,
-  useClearByFocusCell,
-} from "react-native-confirmation-code-field";
-import { Controller, useForm } from "react-hook-form";
-import {
+  View,
+  TouchableOpacity,
+  Platform,
   Keyboard,
   KeyboardAvoidingView,
-  Plataform,
-  Platform,
-  StyleSheet,
-  TextInput,
-  TouchableOpacity,
   TouchableWithoutFeedback,
-  View,
 } from "react-native";
-import React, { useContext, useEffect } from "react";
-import { useRef, useState } from "react";
-
-import { AntDesign } from "@expo/vector-icons";
-import { AuthContext } from "../../context/auth";
-import { FontAwesome5 } from "@expo/vector-icons";
-import { Inputs } from "../../components/Inputs";
+import { Text, Box, Button, ScrollView, Input } from "native-base";
 import styles from "./styles";
+import { useState, useRef } from "react";
+import { AuthContext } from "../../context/auth";
+import axios from "axios";
+export default function Register({ navigation }) {
+  const { email, showTab } = useContext(AuthContext);
+  const [cep, setCep] = useState("");
+  const [address, setAddress] = useState("");
+  const [erro, setErro] = React.useState();
+  const [load, setLoad] = useState(false);
+  const [telefone, setTelefone] = useState("");
+  const [nome, setNome] = useState("");
+  const [cpf, setCpf] = useState("");
+  const [password, setPassword] = useState("");
+  const [rpassword, setRPassword] = useState("");
+  const [logradouro, setLogradouro] = useState("");
+  const [bairro, setBairro] = useState("");
+  const [cidade, setCidade] = useState("");
+  const [estado, setEstado] = useState("");
+  const [numero, setNumero] = useState("");
 
-export function Reset() {
-  const { PutEmail, ShowTab } = useContext(AuthContext);
-
-  const {
-    control,
-    handleSubmit,
-    formState: { errors },
-  } = useForm({
-    defaultValues: {
-      email: "",
-    },
-  });
-  function SendEmail(data) {
-    PutEmail(data.email);
-  }
   useEffect(() => {
-    ShowTab("none");
+    showTab("none");
   });
+
+  useEffect(() => {
+    if (cep.length === 8) {
+      const options = {
+        method: "GET",
+        url: `http://viacep.com.br/ws/${cep.replace(/[^0-9]/g, "")}/json/`,
+      };
+
+      axios
+        .request(options)
+        .then(function (response) {
+          setAddress(response.data);
+          if (response.data.erro) {
+          } else {
+          }
+        })
+        .catch(function (error) {
+          console.error(error);
+        });
+    }
+  }, [cep]);
+
+  function Register(data) {
+    setLoad(true);
+
+    if (password !== rpassword || password === "" || password === undefined) {
+      setErro("As senhas não coincidem.");
+      setLoad(false);
+    } else {
+      const options = {
+        method: "POST",
+        url: "https://api.rutherles.com/api/cadastro",
+        headers: {
+          Accept: "application/json",
+          "Content-Type": "application/json",
+        },
+        data: {
+          nome: nome.trim(),
+          email: email.toLowerCase().trim(),
+          telefone: telefone.trim(),
+          cpf: cpf.trim(),
+          endereco: address.logradouro + " ," + address.bairro + " ," + numero,
+          cidade: address.localidade,
+          estado: address.uf,
+          cep: cep,
+          password: password.trim(),
+        },
+      };
+
+      axios
+        .request(options)
+        .then(function (response) {
+          console.error(response.data);
+          if (response.data) {
+            alert("Usuário cadastrado com sucesso.");
+
+            navigation.navigate("Login", {
+              cadastro: "Usuário cadastrado com sucesso.",
+            });
+            setLoad(false);
+          } else {
+            alert("Por favor digite um CEP Válido");
+            setLoad(false);
+          }
+        })
+        .catch(function (error) {
+          setErro("Dados já cadastrados");
+          setLoad(false);
+        });
+    }
+  }
 
   return (
     <KeyboardAvoidingView
@@ -62,230 +113,190 @@ export function Reset() {
       })}
     >
       <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-        <View style={styles.containerInfo}>
-          <Image
-            alt=""
-            source={require("../../assets/img/email.gif")}
-            style={styles.logoMail}
-          />
-          <Text style={styles.mailTitle}>Esqueceu a senha?</Text>
-          <Text style={styles.mailSubTitle}>
-            Não tem problema, insira seu email.
-          </Text>
-          <Controller
-            control={control}
-            rules={{
-              required: true,
-            }}
-            name="email"
-            render={({ field: { onChange, onBlur, value } }) => (
+        <ScrollView showsVerticalScrollIndicator={false} width="100%">
+          <View style={styles.containerInfo}>
+            <View style={styles.textInfoView}>
+              <Text style={styles.infoTitle}>Agora vamos te conhecer</Text>
+              <Text style={styles.infoSubTitle}>
+                Precisamos de algumas informações.
+              </Text>
+            </View>
+
+            <Box py={2} alignSelf={"center"}>
+              <Text style={styles.infoLabel}>Email</Text>
+
               <Input
-                onChangeText={onChange}
-                value={value}
-                placeholder="Email"
-                autoCapitalize={false}
-                autoCorrect={false}
-                width={"77.77%"}
-                height={42}
-                returnKeyType="next"
-                alignSelf="center"
                 variant="underlined"
+                isDisabled={true}
+                value={email}
+                onChangeText={email}
+                width="77.7%"
+                autoCapitalize="none"
+                autoComplete="off"
+                placeholder="Digite seu email"
                 keyboardType="email-address"
               />
-            )}
-          />
-          {errors.email && (
-            <Text style={{ color: "red", alignSelf: "center" }}>
-              Digite seu email.
-            </Text>
-          )}
+            </Box>
+            <Box py={2} alignSelf={"center"}>
+              <Text style={styles.infoLabel}>Telefone</Text>
 
-          <TouchableOpacity
-            onPress={handleSubmit(SendEmail)}
-            style={styles.mailButton}
-          >
-            <Text style={styles.mailText}>Enviar código</Text>
-          </TouchableOpacity>
-        </View>
-      </TouchableWithoutFeedback>
-    </KeyboardAvoidingView>
-  );
-}
-export function CodigoReset({ navigation }) {
-  const { PutCodigo, ShowTab } = useContext(AuthContext);
-  const {
-    control,
-    handleSubmit,
-    formState: { errors },
-  } = useForm({
-    defaultValues: {
-      codigo: "",
-    },
-  });
-
-  function handlesolicitar(data) {
-    PutCodigo(data.codigo);
-  }
-
-  const CELL_COUNT = 4;
-  const [value, setValue] = useState("");
-  const ref = useBlurOnFulfill({ value, cellCount: CELL_COUNT });
-  const [props, getCellOnLayoutHandler] = useClearByFocusCell({
-    value,
-    setValue,
-  });
-  useEffect(() => {
-    ShowTab("none");
-  });
-
-  return (
-    <KeyboardAvoidingView
-      style={styles.container}
-      behavior={Platform.select({
-        ios: "padding",
-        android: null,
-      })}
-    >
-      <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-        <View style={styles.containerMail}>
-          <Image
-            alt=""
-            source={require("../../assets/img/email.gif")}
-            style={styles.logoMail}
-          />
-          <Text style={styles.CodeTitle}>Continuando...</Text>
-          <Text style={styles.CodeSubTitle}>Insira o código que recebeu.</Text>
-          <Controller
-            control={control}
-            rules={{
-              required: true,
-            }}
-            name="codigo"
-            render={({ field: { onChange, onBlur, value } }) => (
-              <CodeField
-                ref={ref}
-                {...props}
-                value={value}
-                onChangeText={onChange}
-                cellCount={CELL_COUNT}
-                rootStyle={styles.codeFieldRoot}
-                keyboardType="number-pad"
-                textContentType="oneTimeCode"
-                renderCell={({ index, symbol, isFocused }) => (
-                  <Text
-                    key={index}
-                    style={[styles.cell, isFocused && styles.focusCell]}
-                    onLayout={getCellOnLayoutHandler(index)}
-                  >
-                    {symbol || (isFocused ? <Cursor /> : null)}
-                  </Text>
-                )}
-              />
-            )}
-          />
-          {errors.codigo && (
-            <Text style={{ color: "red", alignSelf: "center" }}>
-              Digite o código.
-            </Text>
-          )}
-
-          <TouchableOpacity
-            onPress={handleSubmit(handlesolicitar)}
-            style={styles.mailButton}
-          >
-            <Text style={styles.mailText}>Confirmar código</Text>
-          </TouchableOpacity>
-        </View>
-      </TouchableWithoutFeedback>
-    </KeyboardAvoidingView>
-  );
-}
-
-export function Password({ navigation }) {
-  const { PutInformacoes, email, ShowTab } = useContext(AuthContext);
-  const {
-    control,
-    handleSubmit,
-    formState: { errors },
-  } = useForm({
-    defaultValues: {
-      Nome: "",
-      Telefone: "",
-      Email: email,
-      Senha: "",
-      Rsenha: "",
-    },
-  });
-  useEffect(() => {
-    ShowTab("none");
-  });
-
-  function handleRegister(data) {
-    PutInformacoes([data.Nome, data.Telefone, data.Senha, data.Rsenha]);
-  }
-
-  return (
-    <KeyboardAvoidingView
-      style={styles.container}
-      behavior={Platform.select({
-        ios: "padding",
-        android: null,
-      })}
-    >
-      <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-        <View style={styles.containerInfo}>
-          <View style={styles.textInfoView}>
-            <Text style={styles.infoTitle}>Agora vamos te conhecer</Text>
-            <Text style={styles.infoSubTitle}>
-              Precisamos de algumas informações.
-            </Text>
-          </View>
-
-          <Text key={item.keyt} style={styles.infoLabel}>
-            {item.label}
-          </Text>
-          <Controller
-            key={item.keyc}
-            control={control}
-            rules={{
-              required: true,
-            }}
-            name={item.name}
-            render={({ field: { onChange, onBlur, value } }) => (
               <Input
-                isDisabled={item.isDisabled}
-                key={item.keyi}
-                alignSelf={item.alignSelf}
-                variant={item.variant}
-                marginY={item.marginY}
-                marginBottom={item.marginBottom}
-                width={item.width}
-                height={item.height}
-                onChangeText={onChange}
-                value={value}
-                placeholder={item.label}
-                autoCapitalize={item.auto}
-                autoCorrect={false}
-                returnKeyType={item.returnKeyType}
-                type={item.type}
-                keyboardType={item.keyboardType}
-                secureTextEntry={item.secury}
+                value={telefone}
+                onChangeText={setTelefone}
+                width="77.7%"
+                autoCapitalize="none"
+                autoComplete="off"
+                placeholder="Digite seu telefone"
+                keyboardType="phone-pad"
+                variant="underlined"
               />
-            )}
-          />
-          {errors.email && (
-            <Text style={{ color: "red", alignSelf: "center" }}>
-              Digite seu email.
-            </Text>
-          )}
+            </Box>
+            <Box py={2} alignSelf={"center"}>
+              <Text style={styles.infoLabel}>Nome</Text>
 
-          <TouchableOpacity
-            onPress={handleSubmit(handleRegister)}
-            style={styles.infoButton}
-          >
-            <Text style={styles.infoText}>Finalizar cadastro</Text>
-          </TouchableOpacity>
-        </View>
+              <Input
+                variant="underlined"
+                value={nome}
+                onChangeText={setNome}
+                width="77.7%"
+                autoCapitalize="none"
+                autoComplete="off"
+                placeholder="Digite seu nome"
+              />
+            </Box>
+            <Box py={2} alignSelf={"center"}>
+              <Text style={styles.infoLabel}>Cpf</Text>
+
+              <Input
+                variant="underlined"
+                value={cpf}
+                onChangeText={setCpf}
+                width="77.7%"
+                autoCapitalize="none"
+                autoComplete="off"
+                placeholder="Digite seu cpf"
+                keyboardType="numeric"
+              />
+            </Box>
+
+            <Box py={2} alignSelf={"center"}>
+              <Text style={styles.infoLabel}>Cep</Text>
+
+              <Input
+                variant="underlined"
+                value={cep}
+                onChangeText={setCep}
+                width="77.7%"
+                autoCapitalize="none"
+                autoComplete="off"
+                placeholder="Digite seu cep"
+                keyboardType="numeric"
+              />
+            </Box>
+            <Box py={2} alignSelf={"center"}>
+              <Text style={styles.infoLabel}>Endereço</Text>
+
+              <Input
+                variant="underlined"
+                value={
+                  cep.length >= 8
+                    ? address.logradouro + " ," + address.bairro
+                    : ""
+                }
+                onChangeText={setLogradouro}
+                width="77.7%"
+                autoCapitalize="none"
+                autoComplete="off"
+                placeholder="Digite seu endereço"
+              />
+            </Box>
+            <Box py={2} alignSelf={"center"}>
+              <Text style={styles.infoLabel}>Cidade</Text>
+
+              <Input
+                variant="underlined"
+                value={address.localidade}
+                onChangeText={setCidade}
+                width="77.7%"
+                autoCapitalize="none"
+                autoComplete="off"
+                placeholder="Digite sua cidade"
+              />
+            </Box>
+            <Box py={2} alignSelf={"center"}>
+              <Text style={styles.infoLabel}>Estado</Text>
+
+              <Input
+                variant="underlined"
+                value={address.uf}
+                onChangeText={setEstado}
+                width="77.7%"
+                autoCapitalize="none"
+                autoComplete="off"
+                placeholder="Digite seu estado"
+              />
+            </Box>
+            <Box py={2} alignSelf={"center"}>
+              <Text style={styles.infoLabel}>Número</Text>
+
+              <Input
+                variant="underlined"
+                value={numero}
+                onChangeText={setNumero}
+                width="77.7%"
+                autoCapitalize="none"
+                autoComplete="off"
+                placeholder="Digite seu número"
+              />
+            </Box>
+
+            <Box py={2} alignSelf={"center"}>
+              <Text style={styles.infoLabel}>Senha</Text>
+
+              <Input
+                variant="underlined"
+                value={password}
+                onChangeText={setPassword}
+                width="77.7%"
+                autoCapitalize="none"
+                autoComplete="off"
+                secureTextEntry={true}
+                placeholder="Digite sua senha"
+              />
+            </Box>
+            <Box py={2} alignSelf={"center"}>
+              <Text style={styles.infoLabel}>Repita sua senha</Text>
+
+              <Input
+                variant="underlined"
+                value={rpassword}
+                onChangeText={setRPassword}
+                width="77.7%"
+                autoCapitalize="none"
+                autoComplete="off"
+                secureTextEntry={true}
+                placeholder="Digite sua senha"
+                returnKeyType="done"
+              />
+            </Box>
+            {load ? (
+              <Button
+                style={styles.infoButton}
+                isLoading
+                isLoadingText="Registrando"
+              ></Button>
+            ) : (
+              <TouchableOpacity
+                style={styles.infoButton}
+                onPress={() => {
+                  Register();
+                }}
+              >
+                <Text style={styles.infoText}> Cadastre-se </Text>
+              </TouchableOpacity>
+            )}
+          </View>
+        </ScrollView>
       </TouchableWithoutFeedback>
     </KeyboardAvoidingView>
   );

@@ -45,7 +45,7 @@ export default StyleSheet.create({
     fontFamily: PrimaryFontFamily,
     fontSize: PrimaryFontSize,
     marginTop: 15,
-    paddingHorizontal: 10,
+    textAlign: "center",
   },
   options: {
     flexDirection: "row",
@@ -159,5 +159,6 @@ export default StyleSheet.create({
     shadowOpacity: 0.11,
     shadowRadius: 2.22,
     height: "30%",
+    paddingTop: "5%",
   },
 });

@@ -1,35 +1,38 @@
-import { Box, Text, Center, Avatar, HStack, Stack, Divider } from "native-base";
+import { Box, Text, Avatar, HStack, Stack, Divider } from "native-base";
 import React, { useContext, useEffect } from "react";
-import { View, SafeAreaView, TouchableOpacity } from "react-native";
+import { SafeAreaView, TouchableOpacity } from "react-native";
 import styles from "./styles";
-import {
-  MaterialIcons,
-  AntDesign,
-  Ionicons,
-  Entypo,
-  FontAwesome,
-} from "@expo/vector-icons";
-import {
-  BackgroundSecondary,
-  Error,
-  Primary,
-  TextTertiary,
-} from "../../components/Colors";
+import { MaterialIcons, AntDesign, FontAwesome } from "@expo/vector-icons";
+import { BackgroundSecondary, Error, Primary } from "../../components/Colors";
 import { AuthContext } from "../../context/auth";
-import { BackgroundPrimary } from "../../components/Colors";
+import axios from "axios";
 import { useIsFocused } from "@react-navigation/native";
+
 export default function Settings({ navigation }) {
-  const { ShowTab, PutLogout } = useContext(AuthContext);
-  const login = false;
+  const { showTab, logout, id } = useContext(AuthContext);
+  const [user, setUser] = React.useState({});
 
   useEffect(() => {
     if (isFocused) {
-      ShowTab("visible");
+      showTab("visible");
+      const options = {
+        method: "POST",
+        url: "https://rutherles.site/api/compras",
+        headers: { "Content-Type": "application/json" },
+        data: { user_id: id },
+      };
+      // get user data from API
+      axios
+        .get("https://api.rutherles.com/api/usuario/" + id)
+        .then((response) => {
+          setUser(response.data[0]);
+        })
+        .catch((error) => {
+          console.error(error);
+        });
     }
-  });
-  function Logout() {
-    PutLogout(login);
-  }
+  }, [isFocused]);
+
   const isFocused = useIsFocused();
   return (
     <SafeAreaView style={styles.Container}>
@@ -41,25 +44,20 @@ export default function Settings({ navigation }) {
           borderColor={Primary}
           size="lg"
           source={{
-            uri: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=687&q=80",
+            uri: "https://api.multiavatar.com/Binx%20Boadjss.png",
           }}
         />
         <Box style={styles.avatar}>
-          <Text style={styles.name}>
-            &nbsp; Bruno Matheus &nbsp;
-            <Text style={styles.star}>
-              5 <AntDesign name="star" color={"gold"} />
-            </Text>
-          </Text>
+          <Text style={styles.name}>&nbsp; {user.nome}&nbsp;</Text>
         </Box>
 
         <HStack style={styles.header}>
-          <Text style={styles.subTitle}>(87)988755944</Text>
-          <Text style={styles.subTitle}>brunoedif@gmail.com</Text>
+          <Text style={styles.subTitle}>{user.telefone}</Text>
+          <Text style={styles.subTitle}>{user.email}</Text>
         </HStack>
         <Divider width={"90%"} alignSelf={"center"} />
         <Text style={styles.share}>
-          Compartilhe com amigos e ganhe pontos Grupou &nbsp;
+          Compartilhe com amigos e ganhe pontos &nbsp;
           <FontAwesome name="share" size={15} color={Primary} />
         </Text>
       </Box>
@@ -105,24 +103,12 @@ export default function Settings({ navigation }) {
           </Box>
           <AntDesign name="right" size={20} color="black" />
         </TouchableOpacity>
+
         <Divider />
         <TouchableOpacity
-          onPress={() => navigation.navigate("AddProduct")}
+          onPress={() => navigation.navigate("Profile")}
           style={styles.options}
         >
-          <Box flexDirection={"row"}>
-            <MaterialIcons
-              style={styles.content}
-              name="group-add"
-              size={20}
-              color="black"
-            />
-            <Text style={styles.text}>Criar grupo</Text>
-          </Box>
-          <AntDesign name="right" size={20} color="black" />
-        </TouchableOpacity>
-        <Divider />
-        <TouchableOpacity style={styles.options}>
           <Box flexDirection={"row"}>
             <MaterialIcons
               style={styles.content}
@@ -130,7 +116,23 @@ export default function Settings({ navigation }) {
               size={20}
               color="black"
             />
-            <Text style={styles.text}>Meus Grupos</Text>
+            <Text style={styles.text}>Meus Bilhetes</Text>
+          </Box>
+          <AntDesign name="right" size={20} color="black" />
+        </TouchableOpacity>
+        <Divider />
+        <TouchableOpacity
+          style={styles.options}
+          onPress={() => navigation.navigate("Result")}
+        >
+          <Box flexDirection={"row"}>
+            <MaterialIcons
+              style={styles.content}
+              name="help-outline"
+              size={20}
+              color="black"
+            />
+            <Text style={styles.text}>Resultados</Text>
           </Box>
           <AntDesign name="right" size={20} color="black" />
         </TouchableOpacity>
@@ -148,7 +150,7 @@ export default function Settings({ navigation }) {
           <AntDesign name="right" size={20} color="black" />
         </TouchableOpacity>
         <Divider />
-        <TouchableOpacity style={styles.options} onPress={Logout}>
+        <TouchableOpacity style={styles.options} onPress={() => logout()}>
           <Box flexDirection={"row"}>
             <MaterialIcons
               style={styles.content}

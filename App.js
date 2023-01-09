@@ -1,15 +1,17 @@
-import * as React from 'react';
+import Routes from './src/routes/routes';
+import { NativeBaseProvider } from 'native-base';
+import * as Font from 'expo-font';
+import React from 'react';
+import AuthProvider from './src/context/auth';
+import { NavigationContainer } from '@react-navigation/native';
+import Appbar from './src/components/Appbar';
+import { useEffect, useState } from 'react';
+import { SWRConfig } from 'swr/_internal';
+
 import * as SplashScreen from 'expo-splash-screen';
+import { func } from './src/screens/Home/components/consts';
 
-import { Box, NativeBaseProvider } from 'native-base';
-
-import DrawerStack from './src/navigation/DrawerStack';
-import RootStack from './src/navigation/RootStack';
-import { StatusBar } from 'react-native';
-// root stack navigation
-import { func } from './src/constants';
-
-const App = () => {
+export default function App() {
   const [isLoading, setIsLoading] = React.useState(true);
 
   React.useEffect(() => {
@@ -47,13 +49,15 @@ const App = () => {
   }
 
   return (
-    <React.Fragment>
-      <NativeBaseProvider>
-        <StatusBar barStyle="dark-content" />
-        <DrawerStack />
+    <SWRConfig>
+      <NativeBaseProvider value={{ signed: true }}>
+        <NavigationContainer>
+          <AuthProvider>
+            <Routes />
+            <Appbar />
+          </AuthProvider>
+        </NavigationContainer>
       </NativeBaseProvider>
-    </React.Fragment>
+    </SWRConfig>
   );
-};
-
-export default App;
+}

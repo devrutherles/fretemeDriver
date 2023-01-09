@@ -1,27 +1,31 @@
 {
   "expo": {
-    "name": "Freteme",
-    "description": "Freteme ",
-    "scheme": "freteme",
+    "name": "freteme",
     "slug": "freteme",
-    "privacy": "public",
-    "version": "0.0.1",
-    "platforms": ["android", "ios"],
+    "version": "1.0.0",
     "orientation": "portrait",
-    "primaryColor": "#000000",
-    "icon": "src/assets/icon.png",
+    "icon": "./assets/icon.svg",
+    "userInterfaceStyle": "light",
     "splash": {
-      "backgroundColor": "#000000",
-      "image": "src/assets/splash.png",
-      "resizeMode": "contain"
+      "image": "./assets/splash.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#ffffff"
+    },
+    "updates": {
+      "fallbackToCacheTimeout": 0
     },
     "assetBundlePatterns": ["**/*"],
-    "android": {
-      "versionCode": 1
-    },
     "ios": {
-      "buildNumber": "0.0.1",
       "supportsTablet": true
+    },
+    "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/icon.svg",
+        "backgroundColor": "#FFFFFF"
+      }
+    },
+    "web": {
+      "favicon": "./assets/favicon.png"
     }
   }
 }

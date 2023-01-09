@@ -1,4 +1,4 @@
-import { StyleSheet } from "react-native";
+import { Platform, StyleSheet } from "react-native";
 import {
   BackgroundPrimary,
   BackgroundSecondary,
@@ -9,9 +9,13 @@ import {
   TextTitle,
 } from "../../components/Colors";
 export default StyleSheet.create({
+  dateTimePicker: {
+    alignSelf: "flex-start",
+    marginTop: 10,
+  },
   mailButton: {
-    marginTop: 15,
-    backgroundColor: BackgroundPrimary,
+    marginTop: 45,
+    backgroundColor: Primary,
     width: "77.77%",
     height: 42,
     borderRadius: 5,
@@ -30,11 +34,12 @@ export default StyleSheet.create({
     alignItems: "center",
 
     flex: 1,
-    justifyContent: "center",
+    justifyContent: "flex-start",
+    marginTop: "20%",
   },
   container: {
     backgroundColor: BackgroundSecondary,
-    justifyContent: "center",
+    justifyContent: "flex-start",
     flex: 1,
   },
   contentMidea: {
@@ -110,12 +115,19 @@ export default StyleSheet.create({
   infoSubTitle: {
     fontSize: 14,
     fontFamily: "roboto-medium",
-    marginBottom: "20%",
+    marginBottom: "10%",
 
     color: TextTitle,
     alignSelf: "center",
   },
-  logoMail: { width: 200, height: 150, alignSelf: "center" },
+  logoMail: {
+    width: 200,
+    height: 150,
+    alignSelf: "center",
+
+    marginTop: Platform.OS === "ios" ? 0 : 30,
+    marginBottom: Platform.OS === "ios" ? 0 : -20,
+  },
   social: {
     width: 30,
     height: 36,
@@ -159,13 +171,12 @@ export default StyleSheet.create({
   infoLabel: {
     alignSelf: "flex-start",
     marginTop: 2,
-    marginLeft: "10%",
   },
   textInfoView: {},
   userInfo: {
     width: 50,
-    height: 100,
-    marginTop: 20,
+    height: 50,
+
     alignSelf: "center",
   },
   RegV: {
@@ -209,14 +220,25 @@ export default StyleSheet.create({
     elevation: 2,
   },
   infoButton: {
-    marginTop: 15,
     backgroundColor: Primary,
     width: "77.8%",
     height: 42,
     borderRadius: 5,
     alignItems: "center",
     justifyContent: "center",
+    marginBottom: "10%",
     alignSelf: "center",
+    marginTop: "5%",
+  },
+  input: {
+    width: "77.77%",
+    height: 42,
+    backgroundColor: "#fff",
+    marginBottom: 15,
+    padding: 8,
+    borderRadius: 5,
+    borderWidth: 1,
+    borderColor: "#404040",
   },
   selectv: {
     marginTop: 20,

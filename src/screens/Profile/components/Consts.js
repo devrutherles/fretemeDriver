@@ -1,9 +1,9 @@
-const group1 = require("../../../assets/img/stream.png");
-const group2 = require("../../../assets/img/planos.png");
-const group3 = require("../../../assets/img/adobe.png");
-const group4 = require("../../../assets/img/antivirus.png");
-const group5 = require("../../../assets/img/software.png");
-const group6 = require("../../../assets/img/VPN.png");
+const group1 = require("../../../../assets/img/stream.png");
+const group2 = require("../../../../assets/img/planos.png");
+const group3 = require("../../../../assets/img/adobe.png");
+const group4 = require("../../../../assets/img/antivirus.png");
+const group5 = require("../../../../assets/img/software.png");
+const group6 = require("../../../../assets/img/VPN.png");
 
 export const Touchables = [
   {

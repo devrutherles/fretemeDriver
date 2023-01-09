@@ -1,91 +1,126 @@
+import React, { useState, useContext, useEffect } from "react";
+import { Switch, TouchableOpacity } from "react-native";
 import {
+  Feather,
+  MaterialCommunityIcons,
+  FontAwesome,
+  AntDesign,
+} from "@expo/vector-icons";
+
+import {
+  Wrapper,
+  Header,
+  HeaderContainer,
+  Title,
+  BalanceContainer,
+  Value,
+  Bold,
+  EyeButton,
+  Info,
+  Actions,
   Action,
   ActionLabel,
-  Actions,
-  AddButton,
-  AddLabel,
-  BalanceContainer,
-  Bold,
+  UseBalance,
+  UseBalanceTitle,
+  PaymentMethods,
+  PaymentMethodsTitle,
   Card,
   CardBody,
   CardDetails,
-  CardInfo,
   CardTitle,
-  EyeButton,
-  Header,
-  HeaderContainer,
+  CardInfo,
   Img,
-  Info,
-  PaymentMethods,
-  PaymentMethodsTitle,
-  Title,
-  UseBalance,
-  UseBalanceTitle,
-  UseTicketButton,
+  AddButton,
+  AddLabel,
   UseTicketContainer,
+  UseTicketButton,
   UseTicketLabel,
-  Value,
-  Wrapper,
 } from "./styles";
 import {
-  AntDesign,
-  Feather,
-  FontAwesome,
-  MaterialCommunityIcons,
-} from "@expo/vector-icons";
-import { BackgroundSecondary, Primary } from "../../components/Colors";
-import React, { useContext, useEffect, useState } from "react";
-
+  BackgroundSecondary,
+  Gradiente,
+  Primary,
+} from "../../components/Colors";
+import creditCard from "../../../assets/img/credit-card.png";
 import { AuthContext } from "../../context/auth";
-import { Switch } from "react-native";
-import creditCard from "../../assets/img/credit-card.png"
-import { useIsFocused } from "@react-navigation/native";
+import { useIsFocused, useNavigation } from "@react-navigation/native";
+import { Image } from "native-base";
+import axios from "axios";
+export default function Wallet(route) {
+  const [user, setUser] = useState([]);
+  const navigation = useNavigation();
+  const { id, showTab } = useContext(AuthContext);
+  const [load, setLoad] = useState(true);
+  const [isVisible, setIsVisible] = useState(false);
+  const [useBalance, setUseBalance] = useState(true);
+  const isFocused = useIsFocused();
+  function handleToggleVisibility() {
+    setIsVisible((prevState) => !prevState);
+  }
 
-export default function Wallet() {
-  const { ShowTab, informacoes } = useContext(true);
+  function handleToggleUseBalance() {
+    setUseBalance((prevState) => !prevState);
+  }
 
+  const { pagamento } = route.params ? route.params : false;
 
+  if (pagamento && load) {
+    alert("Depositado com sucesso!");
+    setLoad(false);
+  }
 
-
-  
+  useEffect(() => {
+    showTab("visible");
+    // get user data from API
+    axios
+      .get("https://api.rutherles.com/api/usuario/" + id)
+      .then((response) => {
+        setUser(response.data[0]);
+      })
+      .catch((error) => {
+        console.error(error);
+      });
+  }, [isFocused]);
 
   return (
     <Wrapper>
       <Header
-        colors={ 1==1 ? ["#6699eb", Primary] : ["#D3D3D3", "#868686"]}
+        colors={useBalance ? [Gradiente, Primary] : ["#D3D3D3", "#868686"]}
       >
         <HeaderContainer>
-          <Title>Saldo Grupou</Title>
+          <Title>Saldo Bolão</Title>
 
           <BalanceContainer>
             <Value>
-              R$ <Bold>{1==1 ? "150,00" : "----"}</Bold>
+              <Bold>{isVisible ? "R$ " + user.carteira + ",00" : "----"}</Bold>
             </Value>
 
             <EyeButton onPress={handleToggleVisibility}>
               <Feather
-                name={1==1 ? "eye" : "eye-off"}
+                name={isVisible ? "eye" : "eye-off"}
                 size={28}
                 color={BackgroundSecondary}
               />
             </EyeButton>
           </BalanceContainer>
 
-          <Info>Seu saldo pode ser retirado a qualquer momento!</Info>
-
           <Actions>
             <Action>
-              <MaterialCommunityIcons
-                name="cash"
-                size={28}
-                color={BackgroundSecondary}
-              />
-              <ActionLabel>Adicionar</ActionLabel>
-            </Action>
-
-            <Action>
-              <FontAwesome name="bank" size={20} color={BackgroundSecondary} />
-              <ActionLabel>Retirar</ActionLabel>
+              <TouchableOpacity
+                onPress={() => navigation.navigate("Pix")}
+                style={{
+                  flexDirection: "row",
+                  alignItems: "center",
+                  justifyContent: "space-between",
+                }}
+              >
+                <MaterialCommunityIcons
+                  name="cash"
+                  size={28}
+                  color={BackgroundSecondary}
+                />
+                <ActionLabel>Adicionar</ActionLabel>
+              </TouchableOpacity>
             </Action>
           </Actions>
         </HeaderContainer>
@@ -103,19 +138,25 @@ export default function Wallet() {
         <Card>
           <CardBody>
             <CardDetails>
-              <CardTitle>Cadastre seu cartão de crédito</CardTitle>
               <CardInfo>
-                Cadastre um cartão de crédito para poder comprar grupos quando
-                não tiver saldo.
+                Faça um Pix para adicionar saldo para poder comprar bilhetes
+                quando não tiver saldo.
               </CardInfo>
             </CardDetails>
 
-            <Img source={creditCard} resizeMode="contain" />
+            <Image
+              alt=""
+              source={require("../../../assets/img/pix.png")}
+              width={100}
+              height={35}
+            />
           </CardBody>
 
           <AddButton>
             <AntDesign name="pluscircleo" size={30} color={Primary} />
-            <AddLabel>Adicionar cartão de crédito</AddLabel>
+            <TouchableOpacity onPress={() => navigation.navigate("Pix")}>
+              <AddLabel>Adicionar Saldo</AddLabel>
+            </TouchableOpacity>
           </AddButton>
         </Card>
 

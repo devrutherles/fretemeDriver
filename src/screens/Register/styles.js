@@ -1,4 +1,4 @@
-import { StyleSheet } from "react-native";
+import { Platform, StyleSheet } from "react-native";
 import {
   BackgroundPrimary,
   BackgroundSecondary,
@@ -9,8 +9,12 @@ import {
   TextTitle,
 } from "../../components/Colors";
 export default StyleSheet.create({
+  dateTimePicker: {
+    alignSelf: "flex-start",
+    marginTop: 10,
+  },
   mailButton: {
-    marginTop: 15,
+    marginTop: 45,
     backgroundColor: Primary,
     width: "77.77%",
     height: 42,
@@ -31,7 +35,7 @@ export default StyleSheet.create({
 
     flex: 1,
     justifyContent: "flex-start",
-    marginTop: "30%",
+    marginTop: "20%",
   },
   container: {
     backgroundColor: BackgroundSecondary,
@@ -111,12 +115,19 @@ export default StyleSheet.create({
   infoSubTitle: {
     fontSize: 14,
     fontFamily: "roboto-medium",
-    marginBottom: "20%",
+    marginBottom: "10%",
 
     color: TextTitle,
     alignSelf: "center",
   },
-  logoMail: { width: 200, height: 150, alignSelf: "center" },
+  logoMail: {
+    width: 200,
+    height: 150,
+    alignSelf: "center",
+
+    marginTop: Platform.OS === "ios" ? 0 : 30,
+    marginBottom: Platform.OS === "ios" ? 0 : -50,
+  },
   social: {
     width: 30,
     height: 36,
@@ -164,8 +175,8 @@ export default StyleSheet.create({
   textInfoView: {},
   userInfo: {
     width: 50,
-    height: 100,
-    marginTop: 20,
+    height: 50,
+
     alignSelf: "center",
   },
   RegV: {
@@ -215,7 +226,19 @@ export default StyleSheet.create({
     borderRadius: 5,
     alignItems: "center",
     justifyContent: "center",
-    marginBottom: "20%",
+    marginBottom: "10%",
+    alignSelf: "center",
+    marginTop: "5%",
+  },
+  input: {
+    width: "77.77%",
+    height: 42,
+    backgroundColor: "#fff",
+    marginBottom: 15,
+    padding: 8,
+    borderRadius: 5,
+    borderWidth: 1,
+    borderColor: "#404040",
   },
   selectv: {
     marginTop: 20,

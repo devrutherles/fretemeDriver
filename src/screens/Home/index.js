@@ -1,44 +1,58 @@
+import React, { useState, useEffect, useRef } from 'react';
 import * as Location from 'expo-location';
-import * as React from 'react';
 
-import { Linking, StyleSheet, Text, View } from 'react-native';
-import { colors, device, fonts, gStyle } from '../../constants';
-
+import { Switch, Linking, StyleSheet, View, Platform } from 'react-native';
+import { gStyle } from './components/consts';
+import { Avatar, Box, Button, HStack, Input, Modal, Text } from 'native-base';
 import MapView from 'react-native-maps';
 import PropTypes from 'prop-types';
 // components
-import RequestRideType from '../../components/RequestRideType';
-import SelectRideType from '../../components/SelectRideType';
+import RequestRideType from './components/RequestRideType';
+import SelectRideType from './components/SelectRideType';
 // icons
-import SvgCheckShield from '../../components/icons/Svg.CheckShield';
-import SvgMenu from '../../components/icons/Svg.Menu';
-import SvgQRCode from '../../components/icons/Svg.QRCode';
-import TouchIcon from '../../components/TouchIcon';
-import TouchText from '../../components/TouchText';
-import WhereTo from '../../components/WhereTo';
+import SvgCheckShield from './components/icons/Svg.CheckShield';
+import SvgMenu from './components/icons/Svg.Menu';
+import SvgQRCode from './components/icons/Svg.QRCode';
+import TouchIcon from './components/TouchIcon';
+import TouchText from './components/TouchText';
+import {
+  Primary,
+  BackgroundSecondary,
+  TextTertiary,
+  Border
+} from '../../components/Colors';
+import Waiting from './components/Waiting';
+import styles from './styles';
 
-const { PROVIDER_GOOGLE } = MapView;
+import Pending from './components/Pending';
 
-const types = {
-  car: {
-    image: 'carSm',
-    imageLg: 'carLg',
-    text: 'Ride'
-  },
-  bike: {
-    image: 'bikeSm',
-    imageLg: 'bikeLg',
-    text: 'Bike'
+export default function Home(navigation) {
+  function Disponibility() {
+    setWork((prevState) => !prevState);
   }
-};
+  const on = require('../../../assets/images/search.gif');
+  const off = require('../../../assets/images/erro.gif');
+  const [status, setStatus] = useState(true);
+  const [work, setWork] = useState(true);
+  const types = {
+    car: {
+      image: 'carSm',
+      imageLg: 'carLg',
+      text: 'Caminhão'
+    },
+    bike: {
+      image: 'bikeSm',
+      imageLg: 'bikeLg',
+      text: 'Moto'
+    }
+  };
+  const { PROVIDER_GOOGLE } = MapView;
+  const [type, setType] = useState('car');
+  const [selectType, setSelectType] = useState(false);
+  const [showMap, setShowMap] = useState(false);
+  const [coordinates, setCoords] = useState({ lat: null, lon: null });
 
-  const Home = ({ navigation }) => {
-  const [type, setType] = React.useState('car');
-  const [selectType, setSelectType] = React.useState(false);
-  const [showMap, setShowMap] = React.useState(false);
-  const [coordinates, setCoords] = React.useState({ lat: null, lon: null });
-
-  React.useEffect(() => {
+  useEffect(() => {
     const getLocation = async () => {
       // get exisiting locaton permissions first
       const { status: existingStatus } =
@@ -65,10 +79,6 @@ const types = {
     getLocation().catch(console.error);
   }, []);
 
-  const toggleTypeModal = () => {
-    setSelectType(!selectType);
-  };
-
   return (
     <View style={gStyle.container}>
       {showMap && (
@@ -89,142 +99,82 @@ const types = {
       {!showMap && (
         <View style={styles.containerNoLocation}>
           <Text style={styles.textLocationNeeded}>
-            We need your location data...
+            Precisamos dos dados de sua localização...
           </Text>
           <TouchText
             onPress={() => Linking.openURL('app-settings:')}
             style={styles.btnGoTo}
             styleText={styles.btnGoToText}
-            text="Go To Permissions"
+            text="Vá até as configurações"
           />
         </View>
       )}
 
-        <View style={styles.rightContainer}>
-          <View style={styles.icons}>
-            <TouchIcon
-              icon={<SvgQRCode />}
-              iconSize={20}
-              onPress={() => navigation.navigate('ModalQRCode')}
-              style={[styles.icon, styles.iconQRCode]}
-            />
-            <TouchIcon
-              icon={<SvgCheckShield />}
-              iconSize={20}
-              onPress={() => navigation.navigate('ModalTutorialBike')}
-              style={[styles.icon, styles.iconShield]}
-            />
-          </View>
-        </View>
-        
-      <View style={styles.header}>
-        <TouchIcon
-          icon={<SvgMenu />}
-          iconSize={32}
-          onPress={() => navigation.toggleDrawer()}
-        />
-        <RequestRideType
-          image={types[type].image}
-          onPress={toggleTypeModal}
-          text={types[type].text}
-        />
-
-       <View style={styles.placeholder} />
-        
-          <TouchText
-            onPress={() => navigation.navigate('ModalHelp')}
-            style={styles.help}
-            text="Help"
+      <View style={styles.rightContainer}>
+        <View style={styles.icons}>
+          <TouchIcon
+            icon={<SvgQRCode />}
+            iconSize={20}
+            onPress={() => navigation.navigate('ModalQRCode')}
+            style={[styles.icon, styles.iconQRCode]}
           />
-        
+          <TouchIcon
+            icon={<SvgCheckShield />}
+            iconSize={20}
+            onPress={() => navigation.navigate('ModalTutorialBike')}
+            style={[styles.icon, styles.iconShield]}
+          />
+        </View>
       </View>
 
-      <SelectRideType
-        data={types}
-        onClose={toggleTypeModal}
-        onSelect={(selectedType) => setType(selectedType)}
-        visible={selectType}
-      />
+      <View style={styles.header}>
+        <HStack
+          paddingX={2}
+          paddingY={Platform.OS === 'ios' ? 2 : 0}
+          backgroundColor={BackgroundSecondary}
+          alignItems="center"
+          justifyContent="space-between"
+          width={'35%'}
+          borderRadius={15}
+          shadowColor={'#000'}
+          shadowOffset={{
+            width: 0,
+            height: 1
+          }}
+          shadowOpacity={0.2}
+          shadowRadius={1.41}
+          elevation={2}
+        >
+          <Text fontWeight={'bold'} color={TextTertiary}>
+            Online
+          </Text>
+          <Switch value={work} onValueChange={Disponibility} />
+        </HStack>
 
-      {type === 'car' && <WhereTo />}
+        <View style={styles.placeholder} />
+
+        <TouchText
+          onPress={() => navigation.navigate('ModalHelp')}
+          style={styles.help}
+          text="Help"
+        />
+      </View>
+
+      {status == true && work ? <Pending /> : <></>}
+      {status == false ? (
+        <Waiting
+          text={work ? 'Buscando serviços' : 'Você está offline'}
+          work={work ? 'Online' : 'Offline'}
+          source={on}
+        />
+      ) : (
+        <></>
+      )}
     </View>
   );
-};
+}
 
 Home.propTypes = {
   // required
   navigation: PropTypes.object.isRequired
 };
-
-const styles = StyleSheet.create({
-  map: {
-    flex: 1,
-    height: device.height,
-    position: 'absolute',
-    width: device.width
-  },
-  containerNoLocation: {
-    alignItems: 'center',
-    height: device.height,
-    justifyContent: 'center',
-    position: 'absolute',
-    width: device.width
-  },
-  textLocationNeeded: {
-    fontFamily: fonts.uberMedium,
-    fontSize: 16,
-    marginBottom: 16
-  },
-  btnGoTo: {
-    backgroundColor: colors.black,
-    borderRadius: 3,
-    paddingHorizontal: 16,
-    paddingVertical: 8
-  },
-  btnGoToText: {
-    color: colors.white,
-    fontFamily: fonts.uberMedium,
-    fontSize: 16
-  },
-  header: {
-    alignItems: 'center',
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    paddingHorizontal: 20,
-    paddingTop: device.iPhoneNotch ? 58 : 34
-  },
-  help: {
-    textAlign: 'center',
-    width: 32
-  },
-  placeholder: {
-    height: 32,
-    width: 32
-  },
-  rightContainer: {
-    alignItems: 'center',
-    height: '100%',
-    justifyContent: 'center',
-    position: 'absolute',
-    right: 16,
-    width: 40
-  },
-  icon: {
-    borderRadius: 18,
-    height: 36,
-    shadowColor: colors.black,
-    shadowOffset: { height: 2, width: 0 },
-    shadowOpacity: 0.2,
-    shadowRadius: 8,
-    width: 36
-  },
-  iconQRCode: {
-    backgroundColor: colors.blue,
-    marginBottom: 16
-  },
-  iconShield: {
-    backgroundColor: colors.white
-  }
-});
-
-export default Home;
