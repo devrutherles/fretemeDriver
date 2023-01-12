@@ -15,7 +15,7 @@ import Checkout from '../screens/Checkout';
 import AddProduct from '../screens/AddProduct';
 import Wallet from '../screens/Wallet';
 import { BackgroundPrimary, TextSubTitle } from '../components/Colors';
-
+import Basic from '../screens/Settings/Basic';
 import ProfileInfo from '../screens/Informations';
 import Result from '../screens/Result';
 import Pix from '../screens/Pix';
@@ -132,6 +132,13 @@ export default function Routes() {
             }}
           />
           <Stack.Screen
+            name="Basic"
+            component={Basic}
+            options={{
+              headerShown: false
+            }}
+          />
+          <Stack.Screen
             name="Search"
             component={Search}
             options={{
@@ -239,7 +246,6 @@ export default function Routes() {
               headerShown: false
             }}
           />
-
           <Stack.Screen
             name="Result"
             component={Result}

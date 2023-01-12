@@ -1,6 +1,6 @@
 import * as React from 'react';
 
-import { StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 import { colors, device, fonts } from './consts';
 
 // icons
@@ -8,28 +8,104 @@ import SvgTruck from './icons/Svg.Truck';
 import {
   BackgroundSecondary,
   Primary,
-  Shaddow
+  Shaddow,
+  TextTitle
 } from '../../../components/Colors';
-import { Box, Image } from 'native-base';
+import { Box, Image, VStack, HStack, Text, Button } from 'native-base';
 
-const Waiting = (props) => (
-  <Box borderRadius={20} style={styles.container}>
-    <View style={styles.containerBanner}>
-      <Text style={styles.bannerText}>Novos serviços</Text>
-      <Text style={styles.bannerMuted}>{props.work}</Text>
-    </View>
+export default function Waiting(props) {
+  if (props.start == false) {
+    return (
+      <Box borderRadius={20} style={styles.container}>
+        <View style={styles.containerBanner}>
+          <Text style={styles.bannerText}>Novos serviços</Text>
+          <Text style={styles.bannerMuted}>{props.work}</Text>
+        </View>
 
-    <View style={styles.containerInput}>
-      <View style={styles.containerSquare}>
-        <View style={styles.square} />
-      </View>
-      <Text style={styles.text}>{props.text}</Text>
-      <View style={styles.containerIcon}>
-        <Image w={8} h={8} alt="" source={props.source} />
-      </View>
-    </View>
-  </Box>
-);
+        <View style={styles.containerInput}>
+          <View style={styles.containerSquare}>
+            <View style={styles.square} />
+          </View>
+          <Text style={styles.text}>{props.text}</Text>
+          <View style={styles.containerIcon}>
+            <Image w={8} h={8} alt="" source={props.source} />
+          </View>
+        </View>
+      </Box>
+    );
+  } else {
+    return (
+      <Box borderRadius={20} style={styles.container}>
+        <View style={styles.containerBanner}>
+          <Text style={styles.bannerText}>{props.title}</Text>
+          <Text style={styles.bannerMuted}>{props.work}</Text>
+        </View>
+
+        <VStack
+          bgColor={'#fff'}
+          space={4}
+          borderRadius={20}
+          justifyContent={'space-between'}
+          paddingY={4}
+          shadowColor={'#000'}
+          shadowOffset={{
+            width: 0,
+            height: 1
+          }}
+          shadowOpacity={0.2}
+          shadowRadius={1.41}
+          elevation={2}
+        >
+          <HStack justifyContent={'space-around'}>
+            <HStack space={2}>
+              <Image
+                alt=""
+                backgroundColor={'#fff'}
+                borderWidth={1}
+                borderRadius={20}
+                borderColor={colors.blue}
+                size="sm"
+                source={{
+                  uri: props.avatar
+                }}
+              />
+              <Box justifyContent={'center'}>
+                <Text style={styles.title}>{props.nome}</Text>
+                <Text color={Primary}>{props.service}</Text>
+              </Box>
+            </HStack>
+            <Box justifyContent={'center'}>
+              <Text style={styles.title}>R$ {props.price}</Text>
+              <Text textAlign={'center'} color={Primary}>
+                {props.distance}s KM
+              </Text>
+            </Box>
+          </HStack>
+
+          <Button
+            alignSelf={'center'}
+            onPress={props.onpress_end}
+            w={'55%'}
+            h={'33%'}
+            borderRadius={10}
+            alignItems={'center'}
+            borderWidth={2}
+            borderColor={Primary}
+            backgroundColor={Primary}
+            _text={{
+              color: BackgroundSecondary,
+              fontWeight: 'bold',
+              textAlign: 'center',
+              fontSize: 14
+            }}
+          >
+            Encerrar Serviço
+          </Button>
+        </VStack>
+      </Box>
+    );
+  }
+}
 
 const styles = StyleSheet.create({
   container: {
@@ -89,6 +165,12 @@ const styles = StyleSheet.create({
     fontFamily: fonts.uberMedium,
     fontSize: 20
   },
+  title: {
+    color: TextTitle,
+    fontFamily: fonts.uberMedium,
+    fontSize: 16,
+    fontWeight: 'bold'
+  },
   containerIcon: {
     alignItems: 'center',
     borderLeftColor: colors.greyMercury,
@@ -96,5 +178,3 @@ const styles = StyleSheet.create({
     flex: 2
   }
 });
-
-export default Waiting;

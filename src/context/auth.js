@@ -10,7 +10,7 @@ function AuthProvider({ children }) {
   const [email, setEmail] = useState('');
   const [code, setCode] = useState('');
   const [currentScreen, setCurrentScreen] = useState('');
-  const [isSignedIn, setIsSignedIn] = useState(true);
+  const [isSignedIn, setIsSignedIn] = useState(null);
   const [id, setId] = useState(null);
   const [deposito, setDeposito] = useState([]);
 
@@ -26,7 +26,7 @@ function AuthProvider({ children }) {
       }
       setId(JSON.parse(user).id);
     } catch (error) {
-      setIsSignedIn(true);
+      setIsSignedIn(false);
     }
   };
   checkIfLoggedIn();

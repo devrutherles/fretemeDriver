@@ -12,8 +12,9 @@ export default StyleSheet.create({
     borderRadius: 15,
     alignItems: 'center',
 
-    position: 'absolute',
-    bottom: Platform.OS === 'ios' ? '3%' : '3%'
+    position: 'relative',
+
+    marginBottom: Platform.OS === 'ios' ? '7%' : '3%'
   },
 
   icon: { width: 32, height: 30 },

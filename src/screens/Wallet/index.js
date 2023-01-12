@@ -1,11 +1,11 @@
-import React, { useState, useContext, useEffect } from "react";
-import { Switch, TouchableOpacity } from "react-native";
+import React, { useState, useContext, useEffect } from 'react';
+import { Switch, TouchableOpacity } from 'react-native';
 import {
   Feather,
   MaterialCommunityIcons,
   FontAwesome,
-  AntDesign,
-} from "@expo/vector-icons";
+  AntDesign
+} from '@expo/vector-icons';
 
 import {
   Wrapper,
@@ -34,18 +34,18 @@ import {
   AddLabel,
   UseTicketContainer,
   UseTicketButton,
-  UseTicketLabel,
-} from "./styles";
+  UseTicketLabel
+} from './styles';
 import {
   BackgroundSecondary,
   Gradiente,
-  Primary,
-} from "../../components/Colors";
-import creditCard from "../../../assets/img/credit-card.png";
-import { AuthContext } from "../../context/auth";
-import { useIsFocused, useNavigation } from "@react-navigation/native";
-import { Image } from "native-base";
-import axios from "axios";
+  Primary
+} from '../../components/Colors';
+import creditCard from '../../../assets/img/credit-card.png';
+import { AuthContext } from '../../context/auth';
+import { useIsFocused, useNavigation } from '@react-navigation/native';
+import { Image } from 'native-base';
+import axios from 'axios';
 export default function Wallet(route) {
   const [user, setUser] = useState([]);
   const navigation = useNavigation();
@@ -65,15 +65,15 @@ export default function Wallet(route) {
   const { pagamento } = route.params ? route.params : false;
 
   if (pagamento && load) {
-    alert("Depositado com sucesso!");
+    alert('Depositado com sucesso!');
     setLoad(false);
   }
 
   useEffect(() => {
-    showTab("visible");
+    showTab('visible');
     // get user data from API
     axios
-      .get("https://api.rutherles.com/api/usuario/" + id)
+      .get('https://api.rutherles.com/api/usuario/' + id)
       .then((response) => {
         setUser(response.data[0]);
       })
@@ -85,19 +85,19 @@ export default function Wallet(route) {
   return (
     <Wrapper>
       <Header
-        colors={useBalance ? [Gradiente, Primary] : ["#D3D3D3", "#868686"]}
+        colors={useBalance ? [Gradiente, Primary] : ['#D3D3D3', '#868686']}
       >
         <HeaderContainer>
-          <Title>Saldo Bolão</Title>
+          <Title>Saldo Disponível</Title>
 
           <BalanceContainer>
             <Value>
-              <Bold>{isVisible ? "R$ " + user.carteira + ",00" : "----"}</Bold>
+              <Bold>{isVisible ? 'R$ ' + user.carteira + ',00' : '----'}</Bold>
             </Value>
 
             <EyeButton onPress={handleToggleVisibility}>
               <Feather
-                name={isVisible ? "eye" : "eye-off"}
+                name={isVisible ? 'eye' : 'eye-off'}
                 size={28}
                 color={BackgroundSecondary}
               />
@@ -107,11 +107,11 @@ export default function Wallet(route) {
           <Actions>
             <Action>
               <TouchableOpacity
-                onPress={() => navigation.navigate("Pix")}
+                onPress={() => navigation.navigate('Pix')}
                 style={{
-                  flexDirection: "row",
-                  alignItems: "center",
-                  justifyContent: "space-between",
+                  flexDirection: 'row',
+                  alignItems: 'center',
+                  justifyContent: 'space-between'
                 }}
               >
                 <MaterialCommunityIcons
@@ -119,7 +119,7 @@ export default function Wallet(route) {
                   size={28}
                   color={BackgroundSecondary}
                 />
-                <ActionLabel>Adicionar</ActionLabel>
+                <ActionLabel>Retirar</ActionLabel>
               </TouchableOpacity>
             </Action>
           </Actions>
@@ -127,26 +127,25 @@ export default function Wallet(route) {
       </Header>
 
       <UseBalance>
-        <UseBalanceTitle>Usar saldo ao pagar</UseBalanceTitle>
+        <UseBalanceTitle>Permitir Retirada</UseBalanceTitle>
 
         <Switch value={useBalance} onValueChange={handleToggleUseBalance} />
       </UseBalance>
 
       <PaymentMethods>
-        <PaymentMethodsTitle>Forma de Pagamento</PaymentMethodsTitle>
+        <PaymentMethodsTitle>Forma de Retirada</PaymentMethodsTitle>
 
         <Card>
           <CardBody>
             <CardDetails>
               <CardInfo>
-                Faça um Pix para adicionar saldo para poder comprar bilhetes
-                quando não tiver saldo.
+                Você pode retirar por pix e transferencia bancária!
               </CardInfo>
             </CardDetails>
 
             <Image
               alt=""
-              source={require("../../../assets/img/pix.png")}
+              source={require('../../../assets/img/pix.png')}
               width={100}
               height={35}
             />
@@ -154,8 +153,8 @@ export default function Wallet(route) {
 
           <AddButton>
             <AntDesign name="pluscircleo" size={30} color={Primary} />
-            <TouchableOpacity onPress={() => navigation.navigate("Pix")}>
-              <AddLabel>Adicionar Saldo</AddLabel>
+            <TouchableOpacity onPress={() => navigation.navigate('Pix')}>
+              <AddLabel>Retirar Saldo</AddLabel>
             </TouchableOpacity>
           </AddButton>
         </Card>

@@ -9,7 +9,8 @@ import {
   HStack,
   Input,
   VStack,
-  Image
+  Image,
+  Divider
 } from 'native-base';
 import { StyleSheet, View } from 'react-native';
 import { colors, device, fonts } from './consts';
@@ -21,14 +22,14 @@ import {
   TextTitle
 } from '../../../components/Colors';
 
-export default function Pending() {
+export default function Pending(props, detail) {
   const navigation = useNavigation();
 
   return (
     <View style={styles.container}>
       <VStack
         bgColor={'#fff'}
-        space={2}
+        space={4}
         borderRadius={20}
         justifyContent={'space-between'}
         paddingY={4}
@@ -49,20 +50,21 @@ export default function Pending() {
               borderWidth={1}
               borderRadius={20}
               borderColor={colors.blue}
+              resizeMode={'contain'}
               size="sm"
               source={{
-                uri: 'https://wac-cdn.atlassian.com/dam/jcr:ba03a215-2f45-40f5-8540-b2015223c918/Max-R_Headshot%20(1).jpg?cdnVersion=696'
+                uri: props.avatar
               }}
             />
             <Box justifyContent={'center'}>
-              <Text style={styles.title}>Brendo Rutherles</Text>
-              <Text color={Primary}>Frete carreto</Text>
+              <Text style={styles.title}>{props.nome}</Text>
+              <Text color={Primary}>{props.service}</Text>
             </Box>
           </HStack>
           <Box justifyContent={'center'}>
-            <Text style={styles.title}>R$18,45</Text>
+            <Text style={styles.title}>R${props.price}</Text>
             <Text textAlign={'center'} color={Primary}>
-              1.6 KM
+              {props.distance} KM
             </Text>
           </Box>
         </HStack>
@@ -96,7 +98,7 @@ export default function Pending() {
               paddingLeft={'10px'}
               variant={'underlined'}
               w={'77.7%'}
-              value={'Rua dois'}
+              value={props.from}
             />
           </Box>
         </HStack>
@@ -130,15 +132,37 @@ export default function Pending() {
               paddingLeft={'10px'}
               variant={'underlined'}
               w={'77.7%'}
-              value={'River shopping'}
+              value={props.to}
             />
           </Box>
         </HStack>
 
+        <VStack display={props.detail} space={4}>
+          <Text style={styles.detalhes}>Detalhes:</Text>
+          <Text style={styles.detalhes}>{props.detalhes}</Text>
+          <Divider />
+          <HStack>
+            <Text style={styles.detalhes}>Duração:</Text>
+            <Text style={styles.detalhes}>{props.hora} Horas</Text>
+          </HStack>
+          <Divider />
+          <HStack>
+            <Text style={styles.detalhes}>Ajudantes:</Text>
+            <Text style={styles.detalhes}>{props.ajudante}</Text>
+          </HStack>
+          <Divider />
+          <HStack>
+            <Text style={styles.detalhes}>Extras:</Text>
+            <Text style={styles.detalhes}>
+              {props.extra ? props.extra : 'Não solicitado'}
+            </Text>
+          </HStack>
+        </VStack>
+
         <HStack py={2} justifyContent={'center'} alignItems="center" space={4}>
           <Button
             borderRadius={10}
-            onPress={() => navigation.navigate('Detalhes')}
+            onPress={props.onpress_detail}
             bgColor={BackgroundSecondary}
             borderColor={Primary}
             borderWidth={2}
@@ -147,9 +171,10 @@ export default function Pending() {
             h={'45px'}
             _text={{ color: Primary, fontWeight: 'bold' }}
           >
-            Detalhes
+            {props.detail == 'flex' ? 'Ocultar' : 'Detalhes'}
           </Button>
           <Button
+            onPress={props.onpress_accept}
             w={'45%'}
             h={'45px'}
             borderRadius={10}
@@ -230,6 +255,13 @@ const styles = StyleSheet.create({
     fontFamily: fonts.uberMedium,
     fontSize: 16,
     fontWeight: 'bold'
+  },
+  detalhes: {
+    color: TextTertiary,
+    fontFamily: fonts.uberMedium,
+    fontSize: 16,
+    fontWeight: 'bold',
+    paddingHorizontal: 15
   },
   containerIcon: {
     alignItems: 'center',
