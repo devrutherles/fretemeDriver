@@ -1,20 +1,24 @@
 import React, { createContext, useState, useEffect } from 'react';
 import { useNavigation } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-
+import axios from 'axios';
 // create the auth context to provide auth-related values and functions to its children components
 export const AuthContext = createContext({});
-
 function AuthProvider({ children }) {
   const navigation = useNavigation();
   const [email, setEmail] = useState('');
   const [code, setCode] = useState('');
   const [currentScreen, setCurrentScreen] = useState('');
-  const [isSignedIn, setIsSignedIn] = useState(null);
-  const [id, setId] = useState(null);
-  const [deposito, setDeposito] = useState([]);
-
-  //console.error(isSignedIn);
+  const [isSignedIn, setIsSignedIn] = useState([]);
+  const [id, setId] = useState([]);
+  const [user, setUser] = useState([]);
+  const [order, setOrder] = useState([]);
+  const [status, setStatus] = useState(null);
+  const [currentTime, setCurrentTime] = useState(Date.now());
+  const [work, setWork] = useState(true);
+  const [start, setStart] = useState(false);
+  const [acept, setAcept] = useState(false);
+  const [news, setNews] = useState(false);
   // check if the user is logged in by checking the value of the '@isLoggedIn' key in AsyncStorage
   const checkIfLoggedIn = async () => {
     try {
@@ -30,7 +34,6 @@ function AuthProvider({ children }) {
     }
   };
   checkIfLoggedIn();
-
   // remove the '@isLoggedIn' key from AsyncStorage and set isSignedIn to false
   const logout = async () => {
     try {
@@ -64,39 +67,154 @@ function AuthProvider({ children }) {
     setIsSignedIn(data);
   };
 
-  // store the provided value in AsyncStorage under the '@deposito' key as a JSON string
-  const storeDeposito = async (value) => {
-    try {
-      const jsonValue = JSON.stringify(value);
-      await AsyncStorage.setItem('@deposito', jsonValue);
-    } catch (e) {}
-  };
+  //  get the service
+  useEffect(() => {
+    const getUserData = async () => {
+      const localuser = await AsyncStorage.getItem('@user');
+      const id = JSON.parse(localuser);
+      try {
+        const options = {
+          method: 'GET',
+          url: 'https://api.rutherles.com/api/usuario/' + id.id,
+          headers: { 'Content-Type': 'application/json' }
+        };
 
-  const getDeposito = async () => {
-    try {
-      // Try to retrieve the value from async storage
-      const jsonValue = await AsyncStorage.getItem('@deposito');
+        const response = await axios.request(options);
 
-      // If the value exists, parse it from a JSON string and set it to the deposito state variable
-      if (jsonValue != null) {
-        setDeposito(JSON.parse(jsonValue));
+        setUser(response.data[0]);
+      } catch (error) {
+        console.error(error);
       }
-      // If the value does not exist, set the deposito state variable to an empty array
-      else {
-        setDeposito([]);
-      }
-    } catch (e) {
-      // If an error occurs while trying to retrieve the value, log the error to the console
-      console.error(e);
+    };
+
+    getUserData();
+    if (news == false) {
+      const options = {
+        method: 'GET',
+        url: 'https://fretemeapi2.vercel.app/api/servicos/',
+        headers: { 'Content-Type': 'application/json' },
+        params: { status: 'pendente' }
+      };
+      axios
+        .request(options)
+        .then((response) => {
+          console.log(response.data);
+          let data = response.data.reverse();
+          if (data.length > 0) {
+            setNews(true);
+            setOrder(data[0]);
+          } else {
+            setStatus(false);
+          }
+
+          if (status == true) {
+            sendPushNotification(expoPushToken);
+          }
+        })
+        .catch((error) => {
+          console.error(error);
+        });
     }
-  };
+  }, [currentTime]);
 
+  useEffect(() => {
+    const intervalId = setInterval(() => {
+      setCurrentTime(Date.now());
+    }, 10000);
+    return () => clearInterval(intervalId);
+  }, []);
+
+  // turn on the service
+  function putWork() {
+    setWork((prevState) => !prevState);
+  }
+  // acept the service
+  function putAcept() {
+    const options = {
+      method: 'PUT',
+      url: 'https://fretemeapi2.vercel.app/api/servicos/',
+      headers: { 'Content-Type': 'application/json' },
+      data: {
+        status: 'aceito',
+        motorista_id: id,
+        servico_id: order.id,
+        perfil_motorista:
+          'https://yt3.ggpht.com/eULZKQKOu5C6OTPyEdw_vTEsJ2zgnoZSMSwVRuDvk2Hm8qmsovMA7KLcHwwBDcDlME-UfyKb=s88-c-k-c0x00ffffff-no-rj-mo',
+        motorista_nome: user.nome,
+        motorista_veiculo: user.veiculo,
+        motorista_id: id,
+        status_pagamento: order.status_pagamento,
+        fatura_id: order.fatura_id
+      }
+    };
+    axios
+      .request(options)
+      .then(function (response) {
+        setAcept(true);
+        setNews(null);
+      })
+      .catch(function (error) {
+        console.error(error);
+      });
+  }
+
+  // start the service
+  function putStart() {
+    const options = {
+      method: 'PUT',
+      url: 'https://fretemeapi2.vercel.app/api/servicos/',
+      headers: { 'Content-Type': 'application/json' },
+      data: {
+        status: 'pendente',
+        motorista_id: id,
+        servico_id: order.id,
+        perfil_motorista:
+          'https://yt3.ggpht.com/eULZKQKOu5C6OTPyEdw_vTEsJ2zgnoZSMSwVRuDvk2Hm8qmsovMA7KLcHwwBDcDlME-UfyKb=s88-c-k-c0x00ffffff-no-rj-mo',
+        motorista_nome: user.nome,
+        motorista_veiculo: user.veiculo,
+        motorista_id: id,
+        status_pagamento: order.status_pagamento,
+        fatura_id: order.fatura_id
+      }
+    };
+    axios
+      .request(options)
+      .then(function (response) {
+        setAcept(false);
+      })
+      .catch(function (error) {
+        console.error(error);
+      });
+  }
+
+  // end the service
+  function putEnd() {
+    const options = {
+      method: 'PUT',
+      url: 'https://fretemeapi2.vercel.app/api/servicos/',
+      headers: { 'Content-Type': 'application/json' },
+      data: {
+        status: 'finalizado',
+
+        servico_id: order.servico_id
+      }
+    };
+    axios
+      .request(options)
+      .then(function (response) {
+        setStart(false);
+        setNews(false);
+      })
+      .catch(function (error) {
+        console.error(error);
+      });
+  }
   return (
     <AuthContext.Provider
       value={{
         email,
         code,
-        getDeposito,
+        putWork,
         currentScreen,
         id,
         setEmailAndNavigate,
@@ -105,8 +223,17 @@ function AuthProvider({ children }) {
         showTab,
         logout,
         SetCode,
-        storeDeposito,
-        isSignedIn
+        user,
+        order,
+        status,
+        isSignedIn,
+        work,
+        start,
+        acept,
+        putAcept,
+        putStart,
+        putEnd,
+        news
       }}
     >
       {children}

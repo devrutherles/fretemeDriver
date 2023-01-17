@@ -12,7 +12,7 @@ import {
   Image,
   Divider
 } from 'native-base';
-import { StyleSheet, View } from 'react-native';
+import { StyleSheet, View, TouchableOpacity } from 'react-native';
 import { colors, device, fonts } from './consts';
 import { useNavigation } from '@react-navigation/native';
 import {
@@ -160,37 +160,40 @@ export default function Pending(props, detail) {
         </VStack>
 
         <HStack py={2} justifyContent={'center'} alignItems="center" space={4}>
-          <Button
-            borderRadius={10}
+          <TouchableOpacity
             onPress={props.onpress_detail}
-            bgColor={BackgroundSecondary}
-            borderColor={Primary}
-            borderWidth={2}
-            justifyContent={'center'}
-            w={'45%'}
-            h={'45px'}
-            _text={{ color: Primary, fontWeight: 'bold' }}
+            style={styles.touchable}
           >
-            {props.detail == 'flex' ? 'Ocultar' : 'Detalhes'}
-          </Button>
-          <Button
+            <Text style={styles.touchabletext}>
+              {props.detail == 'flex' ? 'Ocultar' : 'Detalhes'}
+            </Text>
+          </TouchableOpacity>
+          <TouchableOpacity
             onPress={props.onpress_accept}
-            w={'45%'}
-            h={'45px'}
-            borderRadius={10}
-            borderWidth={2}
-            borderColor={Primary}
-            backgroundColor={Primary}
-            _text={{ color: BackgroundSecondary, fontWeight: 'bold' }}
+            style={styles.touchable}
           >
-            Aceitar Serviço
-          </Button>
+            <Text style={styles.touchabletext}> Aceitar Serviço</Text>
+          </TouchableOpacity>
         </HStack>
       </VStack>
     </View>
   );
 }
 const styles = StyleSheet.create({
+  touchable: {
+    borderRadius: 10,
+    borderWidth: 2,
+    borderColor: Primary,
+    backgroundColor: Primary,
+    justifyContent: 'center',
+    alignItems: 'center',
+    width: '45%',
+    height: 45
+  },
+  touchabletext: {
+    color: BackgroundSecondary,
+    fontWeight: 'bold'
+  },
   container: {
     alignSelf: 'center',
     position: 'absolute',

@@ -19,6 +19,7 @@ import TouchIcon from './components/TouchIcon';
 import TouchText from './components/TouchText';
 import { useIsFocused } from '@react-navigation/native';
 import { AuthContext } from '../../context/auth';
+import Acepted from './components/Acepted';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {
   BackgroundSecondary,
@@ -39,28 +40,40 @@ Notifications.setNotificationHandler({
 });
 
 export default function Home(navigation) {
-  const [user, setUser] = useState([]);
-  const { showTab, id } = React.useContext(AuthContext);
+  const {
+    showTab,
+    id,
+    user,
+    order,
+    status,
+    start,
+    work,
+    putWork,
+    acept,
+    putAcept,
+    putStart,
+    putEnd,
+    news
+  } = React.useContext(AuthContext);
   const isFocused = useIsFocused();
   const [expoPushToken, setExpoPushToken] = useState('');
   const [notification, setNotification] = useState(false);
   const notificationListener = useRef();
   const responseListener = useRef();
   const on = require('../../../assets/images/search.gif');
-  const [order, setOrder] = useState([]);
+
   const [init, setInit] = useState([]);
   const [end, setEnd] = useState([]);
 
   const [route, setRoute] = useState([]);
-  const [status, setStatus] = useState(null);
-  const [work, setWork] = useState(true);
+
   const [service, setService] = useState(null);
   const [distance, setDistance] = useState(null);
   const { PROVIDER_GOOGLE } = MapView;
   const [showMap, setShowMap] = useState(false);
   const [coordinates, setCoords] = useState({ lat: null, lon: null });
   const [detail, setDetail] = useState(false);
-  const [start, setStart] = useState(false);
+
   const coordenadas = [init, end];
   useEffect(() => {
     if (isFocused) {
@@ -70,125 +83,6 @@ export default function Home(navigation) {
   console.warn(user);
   const display = detail ? 'flex' : 'none';
 
-  function putDriver() {
-    const options = {
-      method: 'PUT',
-      url: 'https://fretemeapi2.vercel.app/api/servicos/',
-      headers: { 'Content-Type': 'application/json' },
-      data: {
-        status: 'iniciado',
-        motorista_id: id,
-        servico_id: order.id,
-        perfil_motorista:
-          'https://yt3.ggpht.com/eULZKQKOu5C6OTPyEdw_vTEsJ2zgnoZSMSwVRuDvk2Hm8qmsovMA7KLcHwwBDcDlME-UfyKb=s88-c-k-c0x00ffffff-no-rj-mo',
-        motorista_nome: user.nome,
-        motorista_veiculo: user.veiculo,
-        motorista_id: id,
-        status_pagamento: order.status_pagamento,
-        fatura_id: order.fatura_id
-      }
-    };
-    axios
-      .request(options)
-      .then(function (response) {
-        //  console.warn(response.data);
-        setStart(true);
-        setStatus(false);
-        setInit(route.start.lat + ',' + ' ' + route.start.lng);
-        setEnd(route.end.lat + ',' + ' ' + route.end.lng);
-      })
-      .catch(function (error) {
-        console.error(error);
-      });
-  }
-  function putEnd() {
-    const options = {
-      method: 'PUT',
-      url: 'https://fretemeapi2.vercel.app/api/servicos/',
-      headers: { 'Content-Type': 'application/json' },
-      data: {
-        status: 'finalizado',
-
-        servico_id: order.servico_id
-      }
-    };
-    axios
-      .request(options)
-      .then(function (response) {
-        //  console.warn(response.data);
-        setStart(false);
-        setStatus(false);
-      })
-      .catch(function (error) {
-        console.error(error);
-      });
-  }
-  const [currentTime, setCurrentTime] = useState(Date.now());
-
-  useEffect(() => {
-    const getUserData = async () => {
-      const localuser = await AsyncStorage.getItem('@user');
-      const id = JSON.parse(localuser);
-      try {
-        const options = {
-          method: 'GET',
-          url: 'https://api.rutherles.com/api/usuario/' + id.id,
-          headers: { 'Content-Type': 'application/json' }
-        };
-
-        const response = await axios.request(options);
-
-        setUser(response.data[0]);
-      } catch (error) {
-        console.error(error);
-      }
-    };
-    getUserData();
-    if (
-      (work == true && status == false && start == false) ||
-      (work == true && status == null && start == false)
-    ) {
-      const options = {
-        method: 'GET',
-        url: 'https://fretemeapi2.vercel.app/api/servicos/',
-        headers: { 'Content-Type': 'application/json' },
-        params: { status: 'iniciado' }
-      };
-      axios
-        .request(options)
-        .then((response) => {
-          console.log(response.data);
-          let data = response.data.reverse();
-          if (data.length > 0) {
-            setStatus(true);
-            setOrder(data[0]);
-            setDistance(data[0].servico.split(' ')[2]);
-            setService(data[0].servico.split(' ')[0]);
-            setRoute(JSON.parse(data[0].rota));
-          } else {
-            setStatus(false);
-          }
-
-          if (status == true) {
-            sendPushNotification(expoPushToken);
-          }
-        })
-        .catch((error) => {
-          console.error(error);
-        });
-    }
-  }, [currentTime]);
-  console.error(coordenadas);
-  useEffect(() => {
-    const intervalId = setInterval(() => {
-      setCurrentTime(Date.now());
-    }, 10000);
-    return () => clearInterval(intervalId);
-  }, []);
-
-  function Disponibility() {
-    setWork((prevState) => !prevState);
-  }
   useEffect(() => {
     const getLocation = async () => {
       // get exisiting locaton permissions first
@@ -290,6 +184,7 @@ export default function Home(navigation) {
 
     return token;
   }
+  console.error(acept);
 
   if (status == null && !showMap) {
     return (
@@ -375,7 +270,7 @@ export default function Home(navigation) {
             <Text fontWeight={'bold'} color={TextTertiary}>
               Online
             </Text>
-            <Switch value={work} onValueChange={Disponibility} />
+            <Switch value={work} onValueChange={() => putWork()} />
           </HStack>
 
           <View style={styles.placeholder} />
@@ -386,39 +281,42 @@ export default function Home(navigation) {
             text="Help"
           />
         </View>
+        {work ? (
+          <>
+            {news == true && (
+              <Pending
+                avatar={order.foto_user}
+                nome={order.userName}
+                service={service}
+                price={order.frete_valor}
+                distance={distance}
+                from={order.endereco_origem}
+                to={order.endereco_destino}
+                onpress_detail={() => setDetail(detail ? false : true)}
+                onpress_accept={() => putAcept()}
+                detalhes={order.detalhes_servico}
+                hora={order.hora}
+                ajudante={order.ajudante}
+                extra={order.extra}
+                detail={display ? true : false}
+              />
+            )}
+            {news == false && (
+              <Waiting
+                text={work ? 'Buscando serviços' : 'Você está offline'}
+                work={work ? 'Online' : 'Offline'}
+              />
+            )}
 
-        {status === true ? (
-          <Pending
-            avatar={order.foto_user}
-            nome={order.userName}
-            service={service}
-            price={order.frete_valor}
-            distance={distance}
-            from={order.endereco_origem}
-            to={order.endereco_destino}
-            onpress_detail={() => setDetail(detail ? false : true)}
-            onpress_accept={putDriver}
-            detalhes={order.detalhes_servico}
-            hora={order.hora}
-            ajudante={order.ajudante}
-            extra={order.extra}
-            detail={display ? true : false}
-          />
-        ) : (
-          <Waiting
-            avatar={order.foto_user}
-            title="Serviço em andamento"
-            text={work ? 'Buscando serviços' : 'Você está offline'}
-            work={work ? 'Online' : 'Offline'}
-            source={on}
-            start={start}
-            nome={order.userName}
-            service={service}
-            price={order.frete_valor}
-            distance={distance}
-            onpress_end={putEnd}
-          />
-        )}
+            {news == null && (
+              <Acepted
+                acept={acept}
+                onpress_start={() => putStart()}
+                onpress_end={() => putEnd()}
+              />
+            )}
+          </>
+        ) : null}
       </View>
     );
   }
