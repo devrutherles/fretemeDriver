@@ -36,7 +36,7 @@ export default function ProfileInfo({ navigation }) {
   const [email, setEmail] = useState('');
   const [edit, setEdit] = useState(true);
   useEffect(() => {
-    if (isFocused) showTab('none');
+    if (isFocused) showTab('visible');
     // get user data from API
     axios
       .get('https://api.rutherles.com/api/usuario/' + id)

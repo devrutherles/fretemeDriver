@@ -1,10 +1,10 @@
-import React, { useState, useContext, useEffect } from "react";
+import React, { useState, useContext, useEffect } from 'react';
 import {
   View,
   TouchableOpacity,
   Keyboard,
-  TouchableWithoutFeedback,
-} from "react-native";
+  TouchableWithoutFeedback
+} from 'react-native';
 import {
   Image,
   HStack,
@@ -13,22 +13,23 @@ import {
   Pressable,
   Icon,
   Button,
-} from "native-base";
-import { MaterialIcons } from "@expo/vector-icons";
-import { AuthContext } from "../../context/auth";
-import styles from "./styles";
-import { Error } from "../../components/Colors";
-import axios from "axios";
-import AsyncStorage from "@react-native-async-storage/async-storage";
+  Box
+} from 'native-base';
+import { MaterialIcons } from '@expo/vector-icons';
+import { AuthContext } from '../../context/auth';
+import styles from './styles';
+import { Error } from '../../components/Colors';
+import axios from 'axios';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 export default function Login({ navigation, route }) {
   const [load, setLoad] = useState(false);
-  const [error, setError] = useState("");
+  const [error, setError] = useState('');
   const [show, setShow] = React.useState(false);
   const { showTab, setSignInStatus } = useContext(AuthContext);
-  const [password, setPassword] = useState("");
-  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState('');
+  const [email, setEmail] = useState('');
   useEffect(() => {
-    showTab("none");
+    showTab('none');
   });
   function Login(event) {
     event.preventDefault();
@@ -36,30 +37,30 @@ export default function Login({ navigation, route }) {
 
     // Verifique se o email e a senha foram fornecidos
     if (
-      email === "" ||
+      email === '' ||
       email === undefined ||
-      password === "" ||
+      password === '' ||
       password === undefined
     ) {
-      setError("Por favor, insira um email e senha válidos.");
+      setError('Por favor, insira um email e senha válidos.');
       setLoad(false);
       return;
     }
 
     const options = {
-      method: "POST",
-      url: "https://api.rutherles.com/api/login",
-      headers: { "Content-Type": "application/json" },
-      data: { email: email, password: password },
+      method: 'POST',
+      url: 'https://api.rutherles.com/api/login',
+      headers: { 'Content-Type': 'application/json' },
+      data: { email: email, password: password }
     };
     axios
       .request(options)
       .then(function (response) {
-        console.warn(response.data);
+        console.log(response.data);
         const value = JSON.stringify(response.data.user[0]);
         AsyncStorage.multiSet([
-          ["@user", value],
-          ["@isLoggedIn", "true"],
+          ['@user', value],
+          ['@isLoggedIn', 'true']
         ]);
 
         setSignInStatus(true);
@@ -67,7 +68,7 @@ export default function Login({ navigation, route }) {
       })
       .catch(function (error) {
         console.error(error);
-        setError("Email ou senha incorretos.");
+        setError('Email ou senha incorretos.');
         setLoad(false);
       });
   }
@@ -75,18 +76,20 @@ export default function Login({ navigation, route }) {
   return (
     <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
       <View style={styles.container}>
-        <Image
-          alt=""
-          source={require("../../../assets/img/logo.png")}
-          style={styles.logo}
-        />
+        <Box w={'77%'}>
+          <Image
+            alt=""
+            source={require('../../../assets/img/logo.png')}
+            style={styles.logo}
+          />
+        </Box>
         <Input
           onChangeText={setEmail}
           value={email}
           placeholder="Email"
-          autoCapitalize={"none"}
+          autoCapitalize={'none'}
           autoCorrect={false}
-          width={"77.77%"}
+          width={'77.77%'}
           height={42}
           returnKeyType="next"
           alignSelf="center"
@@ -96,13 +99,13 @@ export default function Login({ navigation, route }) {
         />
         <Input
           marginTop={5}
-          type={show ? "text" : "password"}
+          type={show ? 'text' : 'password'}
           InputRightElement={
             <Pressable onPress={() => setShow(!show)}>
               <Icon
                 as={
                   <MaterialIcons
-                    name={show ? "visibility" : "visibility-off"}
+                    name={show ? 'visibility' : 'visibility-off'}
                   />
                 }
                 size={5}
@@ -115,9 +118,9 @@ export default function Login({ navigation, route }) {
           onSubmitEditing={Login}
           value={password}
           placeholder="Senha"
-          autoCapitalize={"none"}
+          autoCapitalize={'none'}
           autoCorrect={false}
-          width={"77.77%"}
+          width={'77.77%'}
           height={42}
           returnKeyType="next"
           alignSelf="center"
@@ -126,7 +129,7 @@ export default function Login({ navigation, route }) {
           fontSize={14}
           secure
         />
-        {error !== "" ? <Text style={{ color: Error }}>{error}</Text> : <></>}
+        {error !== '' ? <Text style={{ color: Error }}>{error}</Text> : <></>}
         {load ? (
           <Button
             style={styles.loginButton}
@@ -140,18 +143,18 @@ export default function Login({ navigation, route }) {
         )}
         <View style={styles.divisor}>
           <View style={styles.divisorLine}></View>
-          <Text style={{ marginHorizontal: "3%", color: "#979797" }}>OU</Text>
+          <Text style={{ marginHorizontal: '3%', color: '#979797' }}>OU</Text>
           <View style={styles.divisorLine}></View>
         </View>
 
         <View style={styles.forgotContainer}>
-          <TouchableOpacity onPress={() => navigation.navigate("Reset")}>
+          <TouchableOpacity onPress={() => navigation.navigate('Reset')}>
             <Text style={styles.forgotText}>Esqueceu sua senha?</Text>
           </TouchableOpacity>
         </View>
         <View style={styles.signUpContainer}>
           <Text style={styles.signUpText}>Não tem uma conta?</Text>
-          <TouchableOpacity onPress={() => navigation.navigate("Email")}>
+          <TouchableOpacity onPress={() => navigation.navigate('Email')}>
             <Text style={styles.signUpButton}>Cadastre-se</Text>
           </TouchableOpacity>
         </View>

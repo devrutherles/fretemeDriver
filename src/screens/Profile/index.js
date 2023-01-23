@@ -8,23 +8,55 @@ import {
   FlatList,
   Image,
   Center,
-  VStack
+  VStack,
+  Modal
 } from 'native-base';
-import React, { useContext, useEffect, useState } from 'react';
-import { View, SafeAreaView } from 'react-native';
+import React, { useContext, useEffect, useState, useRef } from 'react';
+import { View, SafeAreaView, TouchableOpacity, Alert } from 'react-native';
 import styles from './styles';
-import { FontAwesome } from '@expo/vector-icons';
-import { BackgroundSecondary, Primary } from '../../components/Colors';
+import {
+  FontAwesome,
+  MaterialIcons,
+  MaterialCommunityIcons
+} from '@expo/vector-icons';
+import {
+  BackgroundPrimary,
+  BackgroundSecondary,
+  Primary,
+  TextTertiary
+} from '../../components/Colors';
 import { useIsFocused } from '@react-navigation/native';
 import { AuthContext } from '../../context/auth';
-import { colors, device, fonts } from '../Home/components/consts';
+import { colors, device, fonts } from '../../components/Consts';
 import axios from 'axios';
+import moment from 'moment/min/moment-with-locales';
+import { Platform } from 'react-native';
+moment.locale('pt-br');
 export default function Profile({ navigation }) {
   const { showTab, id } = useContext(AuthContext);
   const isFocused = useIsFocused();
-  const [brougth, setBrought] = useState(null);
   const [user, setUser] = useState([]);
   const [order, setOrder] = useState(null);
+  const [dateservice, setDateservice] = useState([]);
+  const [origin, setOrigin] = useState([]);
+  const [destination, setDestination] = useState([]);
+  const [modalVisible, setModalVisible] = useState(false);
+  const [date, setDate] = useState([]);
+  const [value, setValue] = useState(0);
+  const [service, setService] = useState([]);
+  const [userName, setUserName] = useState([]);
+
+  function Show(item) {
+    setModalVisible(true);
+    console.error(item);
+    setUserName(item.userName);
+    setDate(moment(item.data).format('LLL'));
+    setValue(item.frete_valor);
+    setService(item.servico);
+    setDateservice(item.data_servico);
+    setOrigin(item.endereco_origem);
+    setDestination(item.endereco_destino);
+  }
   useEffect(() => {
     showTab('visible');
 
@@ -38,18 +70,16 @@ export default function Profile({ navigation }) {
     axios
       .request(optionsuser)
       .then(function (response) {
-        console.warn(response.data[0]);
+        console.log(response.data[0]);
         setUser(response.data[0]);
       })
-      .catch(function (error) {
-        console.error(error);
-      });
+      .catch(function (error) {});
 
     const options = {
       method: 'GET',
       url: 'https://fretemeapi2.vercel.app/api/servicos/',
       headers: { 'Content-Type': 'application/json' },
-      params: { status: 'finalizado' }
+      params: { status: 'pendente' }
     };
     axios
       .request(options)
@@ -58,10 +88,9 @@ export default function Profile({ navigation }) {
         let data = response.data.reverse();
         setOrder(data);
       })
-      .catch((error) => {
-        console.error(error);
-      });
+      .catch((error) => {});
   }, []);
+
   if (order === null) {
     return (
       <Center flex={1} backgroundColor={BackgroundSecondary}>
@@ -71,96 +100,325 @@ export default function Profile({ navigation }) {
   } else {
     return (
       <SafeAreaView style={styles.container}>
-        <Box style={styles.card} backgroundColor={BackgroundSecondary}>
-          <Avatar
-            mt={2}
-            alignSelf={'center'}
-            borderWidth={3}
-            borderColor={Primary}
-            size="lg"
-            source={{
-              uri: 'https://yt3.ggpht.com/eULZKQKOu5C6OTPyEdw_vTEsJ2zgnoZSMSwVRuDvk2Hm8qmsovMA7KLcHwwBDcDlME-UfyKb=s88-c-k-c0x00ffffff-no-rj-mo'
-            }}
-          />
-          <Box style={styles.avatar}>
-            <Text style={styles.name}>&nbsp; {user.nome}&nbsp;</Text>
-          </Box>
-
-          <HStack style={styles.header}>
-            <Text style={styles.subTitle}>{user.telefone}</Text>
-            <Text style={styles.subTitle}>{user.email}</Text>
-          </HStack>
-          <Divider width={'90%'} alignSelf={'center'} />
-        </Box>
-
-        <Stack>
-          <Text py={2} px={4} style={styles.title}>
-            Meus serviços
-          </Text>
-          {order != [] ? (
-            <FlatList
-              data={order}
-              renderItem={({ item }) => (
-                <Box borderRadius={20} style={styles.container1}>
-                  <View style={styles.containerBanner}>
-                    <Text style={styles.bannerText}>Serviço finalizado</Text>
-                    <Text style={styles.bannerMuted}>{item.data}</Text>
-                  </View>
-
-                  <VStack
-                    bgColor={'#fff'}
-                    space={4}
-                    borderRadius={20}
-                    justifyContent={'space-between'}
-                    paddingY={4}
-                    shadowColor={'#000'}
-                    shadowOffset={{
-                      width: 0,
-                      height: 1
-                    }}
-                    shadowOpacity={0.2}
-                    shadowRadius={1.41}
-                    elevation={2}
-                  >
-                    <HStack justifyContent={'space-around'}>
-                      <HStack space={2}>
-                        <Image
-                          alt=""
-                          backgroundColor={'#fff'}
-                          borderWidth={1}
-                          borderRadius={20}
-                          borderColor={colors.blue}
-                          size="sm"
-                          source={{
-                            uri: 'https://wac-cdn.atlassian.com/dam/jcr:ba03a215-2f45-40f5-8540-b2015223c918/Max-R_Headshot%20(1).jpg?cdnVersion=696'
-                          }}
-                        />
-                        <Box justifyContent={'center'}>
-                          <Text style={styles.title}>{item.userName}</Text>
-                          <Text color={Primary}>
-                            {item.servico.split(' ')[0]}
-                          </Text>
-                        </Box>
-                      </HStack>
-                      <Box justifyContent={'center'}>
-                        <Text style={styles.title}>R$ {item.frete_valor}</Text>
-                        <Text textAlign={'center'} color={Primary}>
-                          {item.servico.split(' ')[3]} KM
-                        </Text>
-                      </Box>
-                    </HStack>
-                  </VStack>
+        <Text
+          pt={Platform.OS === 'ios' ? 0 : 5}
+          fontSize={25}
+          alignSelf={'center'}
+          fontWeight={'bold'}
+          fontFamily={'heading'}
+        >
+          Histórico de serviços
+        </Text>
+        <FlatList
+          backgroundColor={BackgroundSecondary}
+          opacity={modalVisible ? 0.1 : 1}
+          pt={2}
+          style={styles.filter}
+          horizontal={false}
+          showsVerticalScrollIndicator={false}
+          data={order}
+          renderItem={({ item }) => (
+            <TouchableOpacity onPress={() => Show(item)}>
+              <Box
+                marginY={3}
+                padding={2}
+                borderRadius={10}
+                alignSelf={'center'}
+                width={'95%'}
+                shadowColor={'#121212'}
+                shadowOffset={{
+                  width: 0,
+                  height: 1
+                }}
+                shadowOpacity={0.11}
+                shadowRadius={1.41}
+                elevation={2}
+                backgroundColor={BackgroundSecondary}
+              >
+                <Box
+                  alignSelf={'flex-end'}
+                  alignItems={'center'}
+                  justifyContent={'center'}
+                  backgroundColor={'#121212'}
+                  borderRadius={10}
+                  paddingX={2}
+                  height={'35px'}
+                >
+                  <Text color={'#fff'}>
+                    {moment(item.data).format('LLL')} h
+                  </Text>
                 </Box>
-              )}
-            />
-          ) : (
-            <Center justifyContent={'center'} mt={'50%'}>
-              <Text style={styles.title}>
-                Você ainda não realizou nenhum serviço
-              </Text>
-            </Center>
+                <VStack space={6}>
+                  <Box>
+                    <HStack
+                      width={'27.7%'}
+                      justifyContent={'space-between'}
+                      alignItems={'center'}
+                    >
+                      <MaterialIcons
+                        name="location-on"
+                        size={24}
+                        color={colors.blue}
+                      />
+                      <Text fontWeight={'medium'} color={Primary} fontSize={18}>
+                        Origem
+                      </Text>
+                    </HStack>
+                    <Box paddingX={10}>
+                      <Text color={'#c9c9c9'}>{item.endereco_origem} </Text>
+                    </Box>
+                  </Box>
+                  <Box>
+                    <HStack
+                      width={'27.7%'}
+                      justifyContent={'space-between'}
+                      alignItems={'center'}
+                    >
+                      <MaterialCommunityIcons
+                        name="map-marker-check-outline"
+                        size={24}
+                        color="green"
+                      />
+                      <Text
+                        fontWeight={'medium'}
+                        color={'green.700'}
+                        fontSize={18}
+                      >
+                        Destino
+                      </Text>
+                    </HStack>
+                    <Box paddingX={10}>
+                      <Text color={'#c9c9c9'}> {item.endereco_destino}</Text>
+                    </Box>
+                  </Box>
+                </VStack>
+              </Box>
+            </TouchableOpacity>
           )}
-        </Stack>
+        />
+        {modalVisible && (
+          <VStack
+            borderRadius={10}
+            top={Platform.OS === 'ios' ? '25%' : '15%'}
+            alignSelf={'center'}
+            width={'90%'}
+            position={'absolute'}
+            backgroundColor={'#121212'}
+            space={6}
+            paddingY={'2.5%'}
+            borderBottomWidth={0}
+          >
+            <Box pb={4} px={4}>
+              <Text
+                fontSize={25}
+                fontWeight={'bold'}
+                fontFamily={'heading'}
+                color={'#fff'}
+              >
+                Obrigado pelo serviço!
+              </Text>
+              <Text color={'#fff'}>Relatório do serviço de {userName}</Text>
+            </Box>
+
+            <VStack
+              padding={2}
+              borderRadius={10}
+              alignSelf={'center'}
+              width={'90%'}
+              backgroundColor={'#fff'}
+              space={6}
+            >
+              <Box>
+                <HStack
+                  width={'27.7%'}
+                  justifyContent={'space-between'}
+                  alignItems={'center'}
+                >
+                  <MaterialIcons
+                    name="location-on"
+                    size={24}
+                    color={colors.blue}
+                  />
+                  <Text fontWeight={'medium'} color={Primary} fontSize={18}>
+                    Origem
+                  </Text>
+                </HStack>
+                <Box paddingX={5}>
+                  <Text color={'#c9c9c9'}>{origin} </Text>
+                </Box>
+              </Box>
+              <Box>
+                <HStack
+                  width={'27.7%'}
+                  justifyContent={'space-between'}
+                  alignItems={'center'}
+                >
+                  <MaterialCommunityIcons
+                    name="map-marker-check-outline"
+                    size={24}
+                    color="green"
+                  />
+                  <Text fontWeight={'medium'} color={'green.700'} fontSize={18}>
+                    Destino
+                  </Text>
+                </HStack>
+                <Box paddingX={5}>
+                  <Text color={'#c9c9c9'}> {destination}</Text>
+                </Box>
+              </Box>
+            </VStack>
+            <VStack paddingX={4} space={1}>
+              <Text color={'#fff'} fontSize={16} fontWeight={'medium'}>
+                Valor: R$ {value}
+              </Text>
+              <Text color={'#fff'} fontSize={16} fontWeight={'medium'}>
+                Serviço: {service.match(/\b(\w+)\b/)[0]}
+              </Text>
+              <Text color={'#fff'} fontSize={16} fontWeight={'medium'}>
+                Distância: {service.match(/\d+/)} KM
+              </Text>
+            </VStack>
+            <HStack pb={1} justifyContent={'center'} space={'5%'}>
+              <TouchableOpacity
+                style={{
+                  backgroundColor: Primary,
+                  width: '42.5%',
+                  height: 35,
+                  borderRadius: 6,
+                  alignItems: 'center',
+                  justifyContent: 'center'
+                }}
+                onPress={() => setModalVisible(false)}
+              >
+                <Text color={'#fff'} fontSize={16} fontWeight={'medium'}>
+                  Fechar
+                </Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={{
+                  backgroundColor: Primary,
+                  width: '42.5%',
+                  height: 35,
+                  borderRadius: 6,
+                  alignItems: 'center',
+                  justifyContent: 'center'
+                }}
+              >
+                <Text color={'#fff'} fontSize={16} fontWeight={'medium'}>
+                  Compartilhar
+                </Text>
+              </TouchableOpacity>
+            </HStack>
+
+            <HStack ml={'-1%'} position={'absolute'} bottom={0} space={'4.5%'}>
+              <Box
+                style={{
+                  width: 25,
+                  height: 12.5,
+                  borderTopLeftRadius: 50,
+                  borderTopRightRadius: 50,
+                  overflow: 'hidden',
+                  backgroundColor: '#FFF',
+                  border: 'none'
+                }}
+              />
+              <Box
+                style={{
+                  width: 25,
+                  height: 12.5,
+                  borderTopLeftRadius: 50,
+                  borderTopRightRadius: 50,
+                  overflow: 'hidden',
+                  backgroundColor: '#fff',
+
+                  borderBottomWidth: 0
+                }}
+              />
+              <Box
+                style={{
+                  width: 25,
+                  height: 12.5,
+                  borderTopLeftRadius: 50,
+                  borderTopRightRadius: 50,
+                  overflow: 'hidden',
+                  backgroundColor: '#fff',
+                  borderBottomColor: '#fff',
+                  borderBottomWidth: 0
+                }}
+              />
+              <Box
+                style={{
+                  width: 25,
+                  height: 12.5,
+                  borderTopLeftRadius: 50,
+                  borderTopRightRadius: 50,
+                  overflow: 'hidden',
+                  backgroundColor: '#fff',
+                  borderBottomColor: '#fff',
+                  borderBottomWidth: 0
+                }}
+              />
+              <Box
+                style={{
+                  width: 25,
+                  height: 12.5,
+                  borderTopLeftRadius: 50,
+                  borderTopRightRadius: 50,
+                  overflow: 'hidden',
+                  backgroundColor: '#fff',
+                  borderBottomColor: '#fff',
+                  borderBottomWidth: 0
+                }}
+              />
+              <Box
+                style={{
+                  width: 25,
+                  height: 12.5,
+                  borderTopLeftRadius: 50,
+                  borderTopRightRadius: 50,
+                  overflow: 'hidden',
+                  backgroundColor: '#fff',
+                  borderBottomColor: '#fff',
+                  borderBottomWidth: 0
+                }}
+              />
+              <Box
+                style={{
+                  width: 25,
+                  height: 12.5,
+                  borderTopLeftRadius: 50,
+                  borderTopRightRadius: 50,
+                  overflow: 'hidden',
+                  backgroundColor: '#fff',
+                  borderBottomColor: '#fff',
+                  borderBottomWidth: 0
+                }}
+              />
+              <Box
+                style={{
+                  width: 25,
+                  height: 12.5,
+                  borderTopLeftRadius: 50,
+                  borderTopRightRadius: 50,
+                  overflow: 'hidden',
+                  backgroundColor: '#fff',
+                  borderBottomColor: '#fff',
+                  borderBottomWidth: 0
+                }}
+              />
+              <Box
+                style={{
+                  width: 25,
+                  height: 12.5,
+                  borderTopLeftRadius: 50,
+                  borderTopRightRadius: 50,
+                  overflow: 'hidden',
+                  backgroundColor: '#fff'
+                }}
+              />
+            </HStack>
+          </VStack>
+        )}
       </SafeAreaView>
     );
   }

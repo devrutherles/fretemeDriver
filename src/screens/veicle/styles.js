@@ -207,7 +207,7 @@ export default StyleSheet.create({
     borderRadius: 5,
     alignItems: 'center',
     justifyContent: 'center',
-    marginBottom: '30%'
+    marginTop: '10%'
   },
   input: {
     width: '77.77%',

@@ -3,8 +3,7 @@ import { Asset } from 'expo-asset';
 import { BarCodeScanner } from 'expo-barcode-scanner';
 import * as Font from 'expo-font';
 
-import preloadFonts from './preloadFonts';
-import preloadImages from './preloadImages';
+import preloadFonts from './FontFamily';
 
 // cache fonts
 // /////////////////////////////////////////////////////////////////////////////
@@ -26,7 +25,6 @@ const cacheImages = (images) =>
 const loadAssetsAsync = async () => {
   // preload assets
   const fontAssets = cacheFonts(preloadFonts);
-  const imageAssets = cacheImages(preloadImages);
 
   // promise load all
   return Promise.all([...fontAssets, ...imageAssets]);

@@ -1,9 +1,7 @@
 export const homeStatic = require('../../assets/img/home.png');
-export const searchStatic = require('../../assets/img/sea.png');
 export const settingsStatic = require('../../assets/img/set.png');
 export const profileStatic = require('../../assets/img/user.png');
 export const Home = require('../../assets/img/home.gif');
-export const Search = require('../../assets/img/sea.gif');
 export const Setting = require('../../assets/img/set.gif');
 export const Profile = require('../../assets/img/user.gif');
 export const Icons = [
@@ -15,16 +13,9 @@ export const Icons = [
     source: Home
   },
   {
-    key: 'Search',
-    static: searchStatic,
-    navigate: 'Search',
-    size: '30',
-    source: Search
-  },
-  {
-    key: 'Basic',
+    key: 'Settings',
     static: settingsStatic,
-    navigate: 'Basic',
+    navigate: 'Settings',
     size: '30',
     source: Setting
   },
@@ -36,3 +27,10 @@ export const Icons = [
     source: Profile
   }
 ];
+import colors from './Colors';
+import device from './device';
+import fonts from './FontFamily';
+import func from './functions';
+import gStyle from './globalStyles';
+
+export { colors, device, fonts, func, gStyle };

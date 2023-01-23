@@ -1,5 +1,5 @@
 import { StyleSheet } from 'react-native';
-import { colors, device, gStyle } from './components/consts';
+import { colors, device, gStyle } from '../../components/Consts';
 export default StyleSheet.create({
   map: {
     flex: 1,

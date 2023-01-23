@@ -24,6 +24,7 @@ import Code from '../screens/Register/Code';
 
 import { AuthContext } from '../context/auth';
 import CodeR from '../screens/Reset/Code';
+import Vehicles from '../screens/veicle';
 
 const Stack = createNativeStackNavigator();
 
@@ -174,6 +175,22 @@ export default function Routes() {
             options={{
               headerBackTitleVisible: false,
               title: 'Informações pessoais',
+              headerStyle: {
+                backgroundColor: BackgroundPrimary
+              },
+              headerTintColor: TextSubTitle,
+              headerTitleStyle: {
+                fontWeight: 'bold',
+                alignSelf: 'center'
+              }
+            }}
+          />
+          <Stack.Screen
+            name="Vehicles"
+            component={Vehicles}
+            options={{
+              headerBackTitleVisible: false,
+              title: 'Meu Veículo',
               headerStyle: {
                 backgroundColor: BackgroundPrimary
               },

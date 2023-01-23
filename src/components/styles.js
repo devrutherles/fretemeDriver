@@ -7,17 +7,16 @@ export default StyleSheet.create({
     height: '7%',
     backgroundColor: Primary,
     flexDirection: 'row',
-    width: '90%',
+    width: '50%',
     alignSelf: 'center',
     borderRadius: 15,
     alignItems: 'center',
 
-    position: 'relative',
-
-    marginBottom: Platform.OS === 'ios' ? '7%' : '3%'
+    position: 'absolute',
+    bottom: Platform.OS === 'ios' ? '3%' : '3%'
   },
 
-  icon: { width: 32, height: 30 },
+  icon: { width: 35, height: 30 },
   iconTab: {
     width: 35,
     height: 35,

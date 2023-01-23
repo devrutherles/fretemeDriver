@@ -1,35 +1,32 @@
 import React, { useState, useEffect, useRef } from 'react';
 import * as Location from 'expo-location';
-import * as Notifications from 'expo-notifications';
-import * as Device from 'expo-device';
 import {
   Switch,
   Linking,
   View,
   Platform,
-  ActivityIndicator
+  TouchableOpacity,
+  StyleSheet
 } from 'react-native';
-import { gStyle } from './components/consts';
-import { Center, HStack, Text, Image } from 'native-base';
+import { gStyle } from '../../components/Consts';
+import { Center, HStack, Text, Image, VStack, Box } from 'native-base';
 import MapView, { Polyline } from 'react-native-maps';
 import PropTypes from 'prop-types';
-import SvgCheckShield from './components/icons/Svg.CheckShield';
-import SvgQRCode from './components/icons/Svg.QRCode';
-import TouchIcon from './components/TouchIcon';
-import TouchText from './components/TouchText';
+import TouchText from '../../components/TouchText';
 import { useIsFocused } from '@react-navigation/native';
 import { AuthContext } from '../../context/auth';
-import Acepted from './components/Acepted';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import axios from 'axios';
 import {
   BackgroundSecondary,
   TextTertiary,
   Primary
 } from '../../components/Colors';
-import Waiting from './components/Waiting';
 import styles from './styles';
-import axios from 'axios';
-import Pending from './components/Pending';
+import { Pending, Waiting, Acepted } from '../../components/Modal';
+import * as Notifications from 'expo-notifications';
+import * as Device from 'expo-device';
+import { MaterialIcons, MaterialCommunityIcons } from '@expo/vector-icons';
+import polyline from 'polyline';
 
 Notifications.setNotificationHandler({
   handleNotification: async () => ({
@@ -39,49 +36,54 @@ Notifications.setNotificationHandler({
   })
 });
 
-export default function Home(navigation) {
+export default function Home({ navigation }) {
   const {
     showTab,
-    id,
     user,
     order,
-    status,
-    start,
     work,
     putWork,
     acept,
     putAcept,
     putStart,
     putEnd,
-    news
+    news,
+    distance,
+    veicle
   } = React.useContext(AuthContext);
   const isFocused = useIsFocused();
+  const { PROVIDER_GOOGLE } = MapView;
+  const [showMap, setShowMap] = useState(false);
+  const [coordinates, setCoords] = useState({ lat: null, lon: null });
+  const [detail, setDetail] = useState('none');
+  const [modalVisible, setModalVisible] = useState(false);
+  const origin = encodeURIComponent(order.endereco_origem);
+  const destination = encodeURIComponent(order.endereco_destino);
+  const [coordenadas, setCoordenadas] = useState([]);
+  const route = polyline.decode(coordenadas);
   const [expoPushToken, setExpoPushToken] = useState('');
   const [notification, setNotification] = useState(false);
   const notificationListener = useRef();
   const responseListener = useRef();
-  const on = require('../../../assets/images/search.gif');
+  const [timer, setTimer] = useState(0);
+  const [start, setStart] = useState(coordinates.lat);
+  const [end, setEnd] = useState(coordinates.lon);
+  const [time, setTime] = useState(0);
+  const newCoordinates = route.map((coordinate) => ({
+    latitude: coordinate[0],
+    longitude: coordinate[1]
+  }));
 
-  const [init, setInit] = useState([]);
-  const [end, setEnd] = useState([]);
+  useEffect(() => {
+    setStart(newCoordinates[0]?.latitude);
+    setEnd(newCoordinates[1]?.longitude);
+  }, [newCoordinates]);
 
-  const [route, setRoute] = useState([]);
-
-  const [service, setService] = useState(null);
-  const [distance, setDistance] = useState(null);
-  const { PROVIDER_GOOGLE } = MapView;
-  const [showMap, setShowMap] = useState(false);
-  const [coordinates, setCoords] = useState({ lat: null, lon: null });
-  const [detail, setDetail] = useState(false);
-
-  const coordenadas = [init, end];
   useEffect(() => {
     if (isFocused) {
       showTab('visible');
     }
   }, [user]);
-  console.warn(user);
-  const display = detail ? 'flex' : 'none';
 
   useEffect(() => {
     const getLocation = async () => {
@@ -103,7 +105,32 @@ export default function Home(navigation) {
       setShowMap(true);
     };
     getLocation().catch(console.error);
-  }, []);
+  }, [isFocused]);
+
+  useEffect(() => {
+    let interval = null;
+
+    if (news === null) {
+      interval = setInterval(() => {
+        setTimer((timer) => timer + 1);
+      }, 1000);
+    } else if (news === false) {
+      setTime(
+        `${hours.toString().padStart(1, '0')}:${minutes
+          .toString()
+          .padStart(2, '0')}:${seconds.toString().padStart(1, '0')}` + ' '
+      );
+      clearInterval(interval);
+      setTimer(0);
+    }
+
+    return () => clearInterval(interval);
+  }, [news]);
+
+  const seconds = timer % 60;
+  const minutes = Math.floor(timer / 60) % 60;
+  const hours = Math.floor(timer / 3600) % 24;
+  //send notification to the driver
 
   useEffect(() => {
     registerForPushNotificationsAsync().then((token) =>
@@ -181,12 +208,34 @@ export default function Home(navigation) {
         lightColor: '#FF231F7C'
       });
     }
-
-    return token;
   }
-  console.error(acept);
+  useEffect(() => {
+    if (news == true) {
+      sendPushNotification(expoPushToken);
+    }
+  }, [news]);
 
-  if (status == null && !showMap) {
+  useEffect(() => {
+    const getRoute = async () => {
+      const apiKey = 'AIzaSyDWSnciSBk2pJJ0oHy7JF-PgmRPENmxWQQ';
+      const options = {
+        method: 'GET',
+        url: `https://maps.googleapis.com/maps/api/directions/json?origin=${origin}&destination=${destination}&key=${apiKey}`
+      };
+
+      try {
+        const response = await axios.request(options);
+        const route = response.data.routes[0].overview_polyline.points;
+        const polyline = route;
+        setCoordenadas(polyline);
+      } catch (error) {
+        console.error(error);
+      }
+    };
+    getRoute();
+  }, [origin, destination]);
+
+  if (!order.servico && !showMap) {
     return (
       <Center flex={1} backgroundColor={BackgroundSecondary}>
         <Image alt="" source={require('../../../assets/img/load.gif')} />
@@ -197,25 +246,40 @@ export default function Home(navigation) {
       <View style={gStyle.container}>
         {showMap && (
           <MapView
-            followsUserLocation={false}
             provider={PROVIDER_GOOGLE}
             customMapStyle={styles.map}
-            region={{
-              latitude: coordinates.lat,
-              longitude: coordinates.lon,
-              latitudeDelta: 0.01,
-              longitudeDelta: 0.01
-            }}
-            showsUserLocation
-            style={styles.map}
+            region={
+              news != false
+                ? {
+                    latitude: start,
+                    longitude: end,
+                    latitudeDelta: 0.04,
+                    longitudeDelta: 0.04
+                  }
+                : {
+                    latitude: coordinates.lat,
+                    longitude: coordinates.lon,
+                    latitudeDelta: 0.01,
+                    longitudeDelta: 0.01
+                  }
+            }
+            showsUserLocation={true}
+            style={StyleSheet.flatten([
+              styles.map,
+              { opacity: modalVisible ? 0.1 : 1 }
+            ])}
           >
-            {start && (
-              <Polyline
-                coordinates={coordenadas}
-                strokeWidth={5}
-                strokeColor="#000"
-              />
-            )}
+            {coordenadas != [] &&
+              coordenadas != undefined &&
+              coordenadas != null &&
+              coordenadas && (
+                <Polyline
+                  coordinates={newCoordinates}
+                  strokeColor={Primary}
+                  strokeWidth={5}
+                  lineCap="round"
+                />
+              )}
           </MapView>
         )}
         {!showMap && (
@@ -232,23 +296,6 @@ export default function Home(navigation) {
           </View>
         )}
 
-        <View style={styles.rightContainer}>
-          <View style={styles.icons}>
-            <TouchIcon
-              icon={<SvgQRCode />}
-              iconSize={20}
-              onPress={() => navigation.navigate('Basic')}
-              style={[styles.icon, styles.iconQRCode]}
-            />
-            <TouchIcon
-              icon={<SvgCheckShield />}
-              iconSize={20}
-              onPress={() => navigation.navigate('ModalTutorialBike')}
-              style={[styles.icon, styles.iconShield]}
-            />
-          </View>
-        </View>
-
         <View style={styles.header}>
           <HStack
             paddingX={2}
@@ -256,7 +303,6 @@ export default function Home(navigation) {
             backgroundColor={BackgroundSecondary}
             alignItems="center"
             justifyContent="space-between"
-            width={'35%'}
             borderRadius={15}
             shadowColor={'#000'}
             shadowOffset={{
@@ -267,44 +313,57 @@ export default function Home(navigation) {
             shadowRadius={1.41}
             elevation={2}
           >
-            <Text fontWeight={'bold'} color={TextTertiary}>
-              Online
-            </Text>
-            <Switch value={work} onValueChange={() => putWork()} />
+            {news != null ? (
+              <Text paddingX={2} fontWeight={'bold'} color={TextTertiary}>
+                {news == null ? 'Offline' : 'Online'}
+              </Text>
+            ) : (
+              <Text paddingX={2} fontWeight={'bold'} color={TextTertiary}>
+                {`${hours.toString().padStart(1, '0')}:${minutes
+                  .toString()
+                  .padStart(2, '0')}:${seconds.toString().padStart(1, '0')}` +
+                  ' '}
+                h
+              </Text>
+            )}
+            <Switch
+              disabled={news == null ? true : false}
+              value={work}
+              onValueChange={() => putWork()}
+            />
           </HStack>
 
           <View style={styles.placeholder} />
-
-          <TouchText
-            onPress={() => navigation.navigate('ModalHelp')}
-            style={styles.help}
-            text="Help"
-          />
         </View>
+
         {work ? (
           <>
             {news == true && (
               <Pending
+                modalVisible={modalVisible}
                 avatar={order.foto_user}
                 nome={order.userName}
-                service={service}
+                service={order.servico}
                 price={order.frete_valor}
                 distance={distance}
                 from={order.endereco_origem}
                 to={order.endereco_destino}
-                onpress_detail={() => setDetail(detail ? false : true)}
+                onpress_detail={() =>
+                  setDetail(detail == 'flex' ? 'none' : 'flex')
+                }
                 onpress_accept={() => putAcept()}
                 detalhes={order.detalhes_servico}
                 hora={order.hora}
                 ajudante={order.ajudante}
                 extra={order.extra}
-                detail={display ? true : false}
+                detail={detail}
               />
             )}
             {news == false && (
               <Waiting
                 text={work ? 'Buscando serviços' : 'Você está offline'}
                 work={work ? 'Online' : 'Offline'}
+                source={work ? require('../../../assets/img/load.gif') : null}
               />
             )}
 
@@ -312,11 +371,266 @@ export default function Home(navigation) {
               <Acepted
                 acept={acept}
                 onpress_start={() => putStart()}
-                onpress_end={() => putEnd()}
+                onpress_end={() => putEnd(setModalVisible(true))}
+                avatar={order.foto_user}
+                nome={order.userName}
+                service={order.servico.match(/^\S+/)[0]}
+                price={order.frete_valor}
+                distance={order.servico
+                  .match(/\d+/)
+                  .find((n) => !isNaN(parseInt(n)))}
               />
             )}
           </>
         ) : null}
+
+        {modalVisible == true && (
+          <VStack
+            borderRadius={10}
+            top={Platform.OS === 'ios' ? '25%' : '15%'}
+            alignSelf={'center'}
+            width={'90%'}
+            position={'absolute'}
+            backgroundColor={'#121212'}
+            space={6}
+            paddingY={'2.5%'}
+            borderBottomWidth={0}
+          >
+            <Box pb={4} px={4}>
+              <Text
+                fontSize={25}
+                fontWeight={'bold'}
+                fontFamily={'heading'}
+                color={'#fff'}
+              >
+                Obrigado pelo serviço!
+              </Text>
+              <Text color={'#fff'}>
+                Relatório do serviço de {order.userName}
+              </Text>
+            </Box>
+
+            <VStack
+              padding={2}
+              borderRadius={10}
+              alignSelf={'center'}
+              width={'90%'}
+              backgroundColor={'#fff'}
+              space={6}
+            >
+              <Box>
+                <HStack
+                  width={'27.7%'}
+                  justifyContent={'space-between'}
+                  alignItems={'center'}
+                >
+                  <MaterialIcons name="location-on" size={24} color={Primary} />
+                  <Text fontWeight={'medium'} color={Primary} fontSize={18}>
+                    Origem
+                  </Text>
+                </HStack>
+                <Box paddingX={5}>
+                  <Text color={'#c9c9c9'}>{order.endereco_origem} </Text>
+                </Box>
+              </Box>
+              <Box>
+                <HStack
+                  width={'27.7%'}
+                  justifyContent={'space-between'}
+                  alignItems={'center'}
+                >
+                  <MaterialCommunityIcons
+                    name="map-marker-check-outline"
+                    size={24}
+                    color="green"
+                  />
+                  <Text fontWeight={'medium'} color={'green.700'} fontSize={18}>
+                    Destino
+                  </Text>
+                </HStack>
+                <Box paddingX={5}>
+                  <Text color={'#c9c9c9'}> {order.endereco_destino}</Text>
+                </Box>
+              </Box>
+            </VStack>
+            <VStack paddingX={4} space={1}>
+              <Text color={'#fff'} fontSize={16} fontWeight={'medium'}>
+                Valor: R$ {order.frete_valor}
+              </Text>
+              <Text color={'#fff'} fontSize={16} fontWeight={'medium'}>
+                Serviço: {order.servico.match(/^\S+/)[0]}
+              </Text>
+              <Text color={'#fff'} fontSize={16} fontWeight={'medium'}>
+                Distância:
+                {order.servico.match(/\d+/).find((n) => !isNaN(parseInt(n)))} KM
+              </Text>
+              <Text color={'#fff'} fontSize={16} fontWeight={'medium'}>
+                Tempo de serviço:
+                {' ' + time}h
+              </Text>
+            </VStack>
+            <HStack pb={1} justifyContent={'center'} space={'5%'}>
+              <TouchableOpacity
+                style={{
+                  backgroundColor: Primary,
+                  width: '42.5%',
+                  height: 35,
+                  borderRadius: 6,
+                  alignItems: 'center',
+                  justifyContent: 'center'
+                }}
+                onPress={() => setModalVisible(false)}
+              >
+                <Text color={'#fff'} fontSize={16} fontWeight={'medium'}>
+                  Fechar
+                </Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={{
+                  backgroundColor: Primary,
+                  width: '42.5%',
+                  height: 35,
+                  borderRadius: 6,
+                  alignItems: 'center',
+                  justifyContent: 'center'
+                }}
+              >
+                <Text color={'#fff'} fontSize={16} fontWeight={'medium'}>
+                  Compartilhar
+                </Text>
+              </TouchableOpacity>
+            </HStack>
+
+            <HStack ml={'-1%'} position={'absolute'} bottom={0} space={'4.5%'}>
+              <Box
+                style={{
+                  width: 25,
+                  height: 12.5,
+                  borderTopLeftRadius: 50,
+                  borderTopRightRadius: 50,
+                  overflow: 'hidden',
+                  backgroundColor: '#FFF',
+                  border: 'none'
+                }}
+              />
+              <Box
+                style={{
+                  width: 25,
+                  height: 12.5,
+                  borderTopLeftRadius: 50,
+                  borderTopRightRadius: 50,
+                  overflow: 'hidden',
+                  backgroundColor: '#fff',
+
+                  borderBottomWidth: 0
+                }}
+              />
+              <Box
+                style={{
+                  width: 25,
+                  height: 12.5,
+                  borderTopLeftRadius: 50,
+                  borderTopRightRadius: 50,
+                  overflow: 'hidden',
+                  backgroundColor: '#fff',
+                  borderBottomColor: '#fff',
+                  borderBottomWidth: 0
+                }}
+              />
+              <Box
+                style={{
+                  width: 25,
+                  height: 12.5,
+                  borderTopLeftRadius: 50,
+                  borderTopRightRadius: 50,
+                  overflow: 'hidden',
+                  backgroundColor: '#fff',
+                  borderBottomColor: '#fff',
+                  borderBottomWidth: 0
+                }}
+              />
+              <Box
+                style={{
+                  width: 25,
+                  height: 12.5,
+                  borderTopLeftRadius: 50,
+                  borderTopRightRadius: 50,
+                  overflow: 'hidden',
+                  backgroundColor: '#fff',
+                  borderBottomColor: '#fff',
+                  borderBottomWidth: 0
+                }}
+              />
+              <Box
+                style={{
+                  width: 25,
+                  height: 12.5,
+                  borderTopLeftRadius: 50,
+                  borderTopRightRadius: 50,
+                  overflow: 'hidden',
+                  backgroundColor: '#fff',
+                  borderBottomColor: '#fff',
+                  borderBottomWidth: 0
+                }}
+              />
+              <Box
+                style={{
+                  width: 25,
+                  height: 12.5,
+                  borderTopLeftRadius: 50,
+                  borderTopRightRadius: 50,
+                  overflow: 'hidden',
+                  backgroundColor: '#fff',
+                  borderBottomColor: '#fff',
+                  borderBottomWidth: 0
+                }}
+              />
+              <Box
+                style={{
+                  width: 25,
+                  height: 12.5,
+                  borderTopLeftRadius: 50,
+                  borderTopRightRadius: 50,
+                  overflow: 'hidden',
+                  backgroundColor: '#fff',
+                  borderBottomColor: '#fff',
+                  borderBottomWidth: 0
+                }}
+              />
+              <Box
+                style={{
+                  width: 25,
+                  height: 12.5,
+                  borderTopLeftRadius: 50,
+                  borderTopRightRadius: 50,
+                  overflow: 'hidden',
+                  backgroundColor: '#fff'
+                }}
+              />
+            </HStack>
+          </VStack>
+        )}
+
+        {veicle == false && (
+          <HStack
+            position={'absolute'}
+            top={'50%'}
+            borderRadius={5}
+            paddingX={2}
+            alignSelf={'center'}
+            backgroundColor={Primary}
+            height={'5%'}
+          >
+            <TouchableOpacity
+              style={{ alignItems: 'center', justifyContent: 'center' }}
+              onPress={() => navigation.navigate('Vehicles')}
+            >
+              <Text fontSize={16} color={'#fff'}>
+                Toque aqui para cadastrar um veículo
+              </Text>
+            </TouchableOpacity>
+          </HStack>
+        )}
       </View>
     );
   }

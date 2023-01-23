@@ -9,7 +9,7 @@ import { useEffect, useState } from 'react';
 import { SWRConfig } from 'swr/_internal';
 
 import * as SplashScreen from 'expo-splash-screen';
-import { func } from './src/screens/Home/components/consts';
+import { func } from './src/components/Consts';
 
 export default function App() {
   const [isLoading, setIsLoading] = React.useState(true);

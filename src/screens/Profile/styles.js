@@ -10,7 +10,7 @@ import {
   TextTertiary,
   TextTitle
 } from '../../components/Colors';
-import { colors, device, fonts } from '../Home/components/consts';
+import { colors, device, fonts } from '../../components/Consts';
 import {
   SecondaryFontFamily,
   TertiaryFontFamily,
@@ -180,7 +180,7 @@ export default StyleSheet.create({
     justifyContent: 'space-between',
     paddingHorizontal: 20
   },
-  filter: { marginHorizontal: 15, marginTop: 10 },
+  filter: { marginTop: 10 },
   footerText: {
     color: Primary
   },
