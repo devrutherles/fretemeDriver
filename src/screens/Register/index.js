@@ -1,43 +1,43 @@
-import React, { useContext, useEffect } from "react";
+import React, { useContext, useEffect } from 'react';
 import {
   View,
   TouchableOpacity,
   Platform,
   Keyboard,
   KeyboardAvoidingView,
-  TouchableWithoutFeedback,
-} from "react-native";
-import { Text, Box, Button, ScrollView, Input } from "native-base";
-import styles from "./styles";
-import { useState, useRef } from "react";
-import { AuthContext } from "../../context/auth";
-import axios from "axios";
+  TouchableWithoutFeedback
+} from 'react-native';
+import { Text, Box, Button, ScrollView, Input } from 'native-base';
+import styles from './styles';
+import { useState, useRef } from 'react';
+import { AuthContext } from '../../context/auth';
+import axios from 'axios';
 export default function Register({ navigation }) {
   const { email, showTab } = useContext(AuthContext);
-  const [cep, setCep] = useState("");
-  const [address, setAddress] = useState("");
+  const [cep, setCep] = useState('');
+  const [address, setAddress] = useState('');
   const [erro, setErro] = React.useState();
   const [load, setLoad] = useState(false);
-  const [telefone, setTelefone] = useState("");
-  const [nome, setNome] = useState("");
-  const [cpf, setCpf] = useState("");
-  const [password, setPassword] = useState("");
-  const [rpassword, setRPassword] = useState("");
-  const [logradouro, setLogradouro] = useState("");
-  const [bairro, setBairro] = useState("");
-  const [cidade, setCidade] = useState("");
-  const [estado, setEstado] = useState("");
-  const [numero, setNumero] = useState("");
+  const [telefone, setTelefone] = useState('');
+  const [nome, setNome] = useState('');
+  const [cpf, setCpf] = useState('');
+  const [password, setPassword] = useState('');
+  const [rpassword, setRPassword] = useState('');
+  const [logradouro, setLogradouro] = useState('');
+  const [bairro, setBairro] = useState('');
+  const [cidade, setCidade] = useState('');
+  const [estado, setEstado] = useState('');
+  const [numero, setNumero] = useState('');
 
   useEffect(() => {
-    showTab("none");
+    showTab('none');
   });
 
   useEffect(() => {
     if (cep.length === 8) {
       const options = {
-        method: "GET",
-        url: `http://viacep.com.br/ws/${cep.replace(/[^0-9]/g, "")}/json/`,
+        method: 'GET',
+        url: `http://viacep.com.br/ws/${cep.replace(/[^0-9]/g, '')}/json/`
       };
 
       axios
@@ -57,28 +57,25 @@ export default function Register({ navigation }) {
   function Register(data) {
     setLoad(true);
 
-    if (password !== rpassword || password === "" || password === undefined) {
-      setErro("As senhas não coincidem.");
+    if (password !== rpassword || password === '' || password === undefined) {
+      setErro('As senhas não coincidem.');
       setLoad(false);
     } else {
       const options = {
-        method: "POST",
-        url: "https://api.rutherles.com/api/cadastro",
+        method: 'POST',
+        url: 'https://api.freteme.com/api/cadastro',
         headers: {
-          Accept: "application/json",
-          "Content-Type": "application/json",
+          Accept: 'application/json',
+          'Content-Type': 'application/json'
         },
         data: {
           nome: nome.trim(),
           email: email.toLowerCase().trim(),
-          telefone: telefone.trim(),
+          role: 2,
+          veiculo: '',
           cpf: cpf.trim(),
-          endereco: address.logradouro + " ," + address.bairro + " ," + numero,
-          cidade: address.localidade,
-          estado: address.uf,
-          cep: cep,
-          password: password.trim(),
-        },
+          senha: password.trim()
+        }
       };
 
       axios
@@ -86,19 +83,19 @@ export default function Register({ navigation }) {
         .then(function (response) {
           console.error(response.data);
           if (response.data) {
-            alert("Usuário cadastrado com sucesso.");
+            alert('Usuário cadastrado com sucesso.');
 
-            navigation.navigate("Login", {
-              cadastro: "Usuário cadastrado com sucesso.",
+            navigation.navigate('Login', {
+              cadastro: 'Usuário cadastrado com sucesso.'
             });
             setLoad(false);
           } else {
-            alert("Por favor digite um CEP Válido");
+            alert('Por favor digite um CEP Válido');
             setLoad(false);
           }
         })
         .catch(function (error) {
-          setErro("Dados já cadastrados");
+          setErro('Dados já cadastrados');
           setLoad(false);
         });
     }
@@ -108,8 +105,8 @@ export default function Register({ navigation }) {
     <KeyboardAvoidingView
       style={styles.container}
       behavior={Platform.select({
-        ios: "padding",
-        android: null,
+        ios: 'padding',
+        android: null
       })}
     >
       <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
@@ -122,7 +119,7 @@ export default function Register({ navigation }) {
               </Text>
             </View>
 
-            <Box py={2} alignSelf={"center"}>
+            <Box py={2} alignSelf={'center'}>
               <Text style={styles.infoLabel}>Email</Text>
 
               <Input
@@ -137,7 +134,7 @@ export default function Register({ navigation }) {
                 keyboardType="email-address"
               />
             </Box>
-            <Box py={2} alignSelf={"center"}>
+            <Box py={2} alignSelf={'center'}>
               <Text style={styles.infoLabel}>Telefone</Text>
 
               <Input
@@ -151,7 +148,7 @@ export default function Register({ navigation }) {
                 variant="underlined"
               />
             </Box>
-            <Box py={2} alignSelf={"center"}>
+            <Box py={2} alignSelf={'center'}>
               <Text style={styles.infoLabel}>Nome</Text>
 
               <Input
@@ -164,7 +161,7 @@ export default function Register({ navigation }) {
                 placeholder="Digite seu nome"
               />
             </Box>
-            <Box py={2} alignSelf={"center"}>
+            <Box py={2} alignSelf={'center'}>
               <Text style={styles.infoLabel}>Cpf</Text>
 
               <Input
@@ -179,7 +176,7 @@ export default function Register({ navigation }) {
               />
             </Box>
 
-            <Box py={2} alignSelf={"center"}>
+            <Box py={2} alignSelf={'center'}>
               <Text style={styles.infoLabel}>Cep</Text>
 
               <Input
@@ -193,15 +190,15 @@ export default function Register({ navigation }) {
                 keyboardType="numeric"
               />
             </Box>
-            <Box py={2} alignSelf={"center"}>
+            <Box py={2} alignSelf={'center'}>
               <Text style={styles.infoLabel}>Endereço</Text>
 
               <Input
                 variant="underlined"
                 value={
                   cep.length >= 8
-                    ? address.logradouro + " ," + address.bairro
-                    : ""
+                    ? address.logradouro + ' ,' + address.bairro
+                    : ''
                 }
                 onChangeText={setLogradouro}
                 width="77.7%"
@@ -210,7 +207,7 @@ export default function Register({ navigation }) {
                 placeholder="Digite seu endereço"
               />
             </Box>
-            <Box py={2} alignSelf={"center"}>
+            <Box py={2} alignSelf={'center'}>
               <Text style={styles.infoLabel}>Cidade</Text>
 
               <Input
@@ -223,7 +220,7 @@ export default function Register({ navigation }) {
                 placeholder="Digite sua cidade"
               />
             </Box>
-            <Box py={2} alignSelf={"center"}>
+            <Box py={2} alignSelf={'center'}>
               <Text style={styles.infoLabel}>Estado</Text>
 
               <Input
@@ -236,7 +233,7 @@ export default function Register({ navigation }) {
                 placeholder="Digite seu estado"
               />
             </Box>
-            <Box py={2} alignSelf={"center"}>
+            <Box py={2} alignSelf={'center'}>
               <Text style={styles.infoLabel}>Número</Text>
 
               <Input
@@ -250,7 +247,7 @@ export default function Register({ navigation }) {
               />
             </Box>
 
-            <Box py={2} alignSelf={"center"}>
+            <Box py={2} alignSelf={'center'}>
               <Text style={styles.infoLabel}>Senha</Text>
 
               <Input
@@ -264,7 +261,7 @@ export default function Register({ navigation }) {
                 placeholder="Digite sua senha"
               />
             </Box>
-            <Box py={2} alignSelf={"center"}>
+            <Box py={2} alignSelf={'center'}>
               <Text style={styles.infoLabel}>Repita sua senha</Text>
 
               <Input

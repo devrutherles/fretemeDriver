@@ -7,20 +7,30 @@ import {
   KeyboardAvoidingView,
   TouchableWithoutFeedback
 } from 'react-native';
-import { Text, Box, Button, ScrollView, Input, Image } from 'native-base';
+import {
+  Text,
+  Box,
+  Button,
+  ScrollView,
+  Input,
+  Image,
+  HStack,
+  VStack,
+  FlatList
+} from 'native-base';
 import styles from './styles';
 import { useState, useRef } from 'react';
 import { AuthContext } from '../../context/auth';
 import axios from 'axios';
 import { useIsFocused } from '@react-navigation/native';
 import { BackgroundSecondary } from '../../components/Colors';
-
+import { TextTertiary, Primary } from '../../components/Colors';
 export default function Vehicles({ navigation }) {
   const { id, showTab, putVeicle } = useContext(AuthContext);
   const [erro, setErro] = React.useState();
   const [load, setLoad] = useState(false);
   const isFocused = useIsFocused();
-  const [user, setUser] = useState('');
+  const [user, setUser] = useState(null);
   const [edit, setEdit] = useState(true);
   const [categoria, setCategoria] = useState('');
   const [marca, setMarca] = useState('');
@@ -29,14 +39,63 @@ export default function Vehicles({ navigation }) {
   const [placa, setPlaca] = useState('');
   const [cor, setCor] = useState('');
 
+  const Services = [
+    {
+      id: 1,
+      name: 'Frete',
+      source: 'https://i.ibb.co/VDT4HN1/car1.jpg',
+      description: 'Adicional de ajudantes e horas',
+      objective: 'Feito para encomendas já embaladas'
+    },
+    {
+      id: 2,
+      name: 'Mudança',
+      source: 'https://i.ibb.co/r3x5PzH/car1.jpg',
+      description: 'Adicional de ajudantes e horas',
+      objective: 'Para serviços com maior tempo '
+    },
+    {
+      id: 3,
+      name: 'Moto Frete',
+      source: 'https://i.ibb.co/fFHwtcQ/moto.jpg',
+      description: 'Rápido e prático',
+      objective: 'Feito para encomendas pequenas'
+    }
+  ];
+  const veiculo = {
+    categoria: categoria,
+    marca: marca,
+    modelo: modelo,
+    ano: ano,
+    placa: placa,
+    cor: cor
+  };
+  JSON.stringify(veiculo);
   function Register() {
     setLoad(true);
-    putVeicle(true);
-    alert('Veículo cadastrado com sucesso!');
-    setLoad(false);
+    const options = {
+      method: 'PUT',
+      url: 'https://api.freteme.com/api/usuario',
+      headers: { 'Content-Type': 'application/json' },
+      data: { cliente_id: id, veiculo: JSON.stringify(veiculo) }
+    };
+
+    axios
+      .request(options)
+      .then(function (response) {
+        console.log(response.data);
+        putVeicle(true);
+        alert('Veículo cadastrado com sucesso!');
+        setLoad(false);
+        setEdit(true);
+      })
+      .catch(function (error) {
+        setLoad(false);
+        console.error(error);
+      });
   }
   useEffect(() => {
-    showTab('visible');
+    showTab('none');
   }, [isFocused]);
 
   if (user === null) {
@@ -62,21 +121,112 @@ export default function Vehicles({ navigation }) {
         <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
           <ScrollView showsVerticalScrollIndicator={false} width="100%">
             <View style={styles.containerInfo}>
-              <Box py={2} alignSelf={'center'}>
-                <Text style={styles.infoLabel}>Categoria do veículo </Text>
+              <HStack
+                px={2}
+                w={'100%'}
+                alignSelf={'center'}
+                alignItems={'flex-start'}
+              >
+                <Box w={'100%'}>
+                  <Text
+                    pb={2}
+                    style={{
+                      textAlign: 'left',
+                      paddingHorizontal: '10%',
+                      color: TextTertiary,
+                      fontSize: 12
+                    }}
+                  >
+                    Categoria
+                  </Text>
+                  <FlatList
+                    data={Services}
+                    renderItem={({ item }) => (
+                      <TouchableOpacity
+                        style={{
+                          backgroundColor:
+                            item.name != categoria ? '#fff' : Primary,
+                          marginBottom: 10,
 
-                <Input
-                  variant="underlined"
-                  isDisabled={true}
-                  value={categoria}
-                  onChangeText={setCategoria}
-                  width="77.7%"
-                  autoCapitalize="nome"
-                  autoComplete="off"
-                  placeholder="Escolha a categoria do seu veículo"
-                  keyboardType="email-address"
-                />
-              </Box>
+                          borderRadius: 10,
+                          padding: 5,
+                          width: '90%',
+                          alignSelf: 'center',
+                          shadowColor: '#c9c9c9',
+                          shadowOffset: {
+                            width: 0,
+                            height: 2
+                          },
+                          shadowOpacity: 0.25,
+                          shadowRadius: 3.84,
+                          elevation: 5,
+                          height: 70
+                        }}
+                        onPress={() => {
+                          setCategoria(item.name);
+                        }}
+                      >
+                        <HStack>
+                          <Box
+                            backgroundColor={'#fff'}
+                            borderWidth={1}
+                            borderRadius={6}
+                            borderColor={
+                              item.name != categoria ? '#c9c9c9' : '#FFF'
+                            }
+                            width={'45px'}
+                            height={'60px'}
+                            justifyContent={'center'}
+                            alignItems={'center'}
+                          >
+                            <Image
+                              alt=""
+                              backgroundColor={'#fff'}
+                              w={'40px'}
+                              h={'40px'}
+                              resizeMode="contain"
+                              source={{
+                                uri: item.source
+                              }}
+                            />
+                          </Box>
+
+                          <VStack px={2}>
+                            <HStack>
+                              <Box w={'65%'}>
+                                <Text
+                                  color={
+                                    item.name != categoria ? '#404040' : '#FFF'
+                                  }
+                                  fontWeight={'medium'}
+                                >
+                                  {item.name}
+                                </Text>
+                              </Box>
+                            </HStack>
+                            <VStack>
+                              <Text
+                                color={
+                                  item.name != categoria ? '#404040' : '#FFF'
+                                }
+                              >
+                                {item.description}
+                              </Text>
+                              <Text
+                                color={
+                                  item.name != categoria ? '#C9C9C9' : '#FFF'
+                                }
+                              >
+                                {item.objective}
+                              </Text>
+                            </VStack>
+                          </VStack>
+                        </HStack>
+                      </TouchableOpacity>
+                    )}
+                  />
+                </Box>
+              </HStack>
               <Box py={2} alignSelf={'center'}>
                 <Text style={styles.infoLabel}>Marca</Text>
 
@@ -110,7 +260,7 @@ export default function Vehicles({ navigation }) {
                 <Text style={styles.infoLabel}>Ano</Text>
 
                 <Input
-                  isDisabled={true}
+                  isDisabled={edit}
                   variant="underlined"
                   value={ano}
                   onChangeText={setAno}
@@ -134,7 +284,6 @@ export default function Vehicles({ navigation }) {
                   autoCapitalize="nome"
                   autoComplete="off"
                   placeholder="A placa do seu veículo"
-                  keyboardType="numeric"
                 />
               </Box>
               <Box py={2} alignSelf={'center'}>

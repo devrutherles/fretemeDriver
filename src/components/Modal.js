@@ -33,7 +33,7 @@ export function Acepted(props) {
           bgColor={'#fff'}
         >
           <VStack justifyContent={'center'} space={4}>
-            <HStack justifyContent={'space-around'}>
+            <HStack px={2} justifyContent={'space-around'}>
               <HStack space={2}>
                 <Image
                   alt=""
@@ -51,10 +51,15 @@ export function Acepted(props) {
                   <Text color={Primary}>{props.service}</Text>
                 </Box>
               </HStack>
-              <Box justifyContent={'center'}>
-                <Text style={styles.title}>R$ {props.price}</Text>
+              <Divider
+                orientation="vertical"
+                height={'50%'}
+                alignSelf={'center'}
+              />
+              <Box alignItems={'flex-start'} justifyContent={'center'}>
+                <Text style={styles.title}>{props.price}</Text>
                 <Text textAlign={'center'} color={Primary}>
-                  {props.distance} KM
+                  {props.distance}
                 </Text>
               </Box>
             </HStack>
@@ -120,10 +125,15 @@ export function Acepted(props) {
                 <Text color={Primary}>{props.service}</Text>
               </Box>
             </HStack>
-            <Box justifyContent={'center'}>
-              <Text style={styles.title}>R$ {props.price}</Text>
+            <Divider
+              orientation="vertical"
+              height={'50%'}
+              alignSelf={'center'}
+            />
+            <Box alignItems={'flex-start'} justifyContent={'center'}>
+              <Text style={styles.title}>{props.price}</Text>
               <Text textAlign={'center'} color={Primary}>
-                {props.distance} KM
+                {props.distance}
               </Text>
             </Box>
           </HStack>
@@ -167,7 +177,7 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.2,
     shadowRadius: 8,
     top: device.iPhoneNotch ? 144 : 120,
-    width: '85%',
+    width: '90%',
     borderRadius: 20,
     backgroundColor: BackgroundSecondary,
     justifyContent: 'center'
@@ -357,7 +367,7 @@ export function Pending(props) {
     <View
       style={StyleSheet.flatten([
         styles.containerPending,
-        { opacity: props.modalVibible == true ? 0.1 : 1 }
+        { opacity: props.opacity }
       ])}
     >
       <VStack
@@ -375,7 +385,7 @@ export function Pending(props) {
         shadowRadius={1.41}
         elevation={2}
       >
-        <HStack justifyContent={'space-around'}>
+        <HStack space={2} justifyContent={'center'}>
           <HStack space={2}>
             <Image
               alt=""
@@ -391,13 +401,15 @@ export function Pending(props) {
             />
             <Box justifyContent={'center'}>
               <Text style={styles.title}>{props.nome}</Text>
+
               <Text color={Primary}>{props.service}</Text>
             </Box>
           </HStack>
+          <Divider height={'75%'} alignSelf={'center'} orientation="vertical" />
           <Box justifyContent={'center'} alignItems={'flex-start'}>
-            <Text style={styles.title}>R$ {props.price},00</Text>
+            <Text style={styles.title}>{props.price}</Text>
             <Text textAlign={'center'} color={Primary}>
-              {props.distance} Km
+              {props.distance}
             </Text>
           </Box>
         </HStack>

@@ -5,28 +5,20 @@ import styles from './styles';
 import { MaterialIcons, AntDesign, FontAwesome } from '@expo/vector-icons';
 import { BackgroundSecondary, Error, Primary } from '../../components/Colors';
 import { AuthContext } from '../../context/auth';
-import axios from 'axios';
+
 import { useIsFocused } from '@react-navigation/native';
 
 export default function Settings({ navigation }) {
-  const { showTab, logout, id } = useContext(AuthContext);
-  const [user, setUser] = React.useState({});
+  const { showTab, logout, id, localUser } = useContext(AuthContext);
 
   useEffect(() => {
     if (isFocused) {
-      () => showTab('visible');
-
-      // get user data from API
-      axios
-        .get('https://api.rutherles.com/api/usuario/' + id)
-        .then((response) => {
-          setUser(response.data[0]);
-        })
-        .catch((error) => {
-          console.error(error);
-        });
+      showTab('visible');
     }
-  }, [isFocused]);
+  });
+  console.warn(localUser);
+
+  const name = localUser.nome.match(/^(\S+\s\S+)/);
 
   const isFocused = useIsFocused();
   return (
@@ -43,12 +35,12 @@ export default function Settings({ navigation }) {
           }}
         />
         <Box style={styles.avatar}>
-          <Text style={styles.name}>&nbsp; {user.nome}&nbsp;</Text>
+          <Text style={styles.name}>&nbsp; {name}&nbsp;</Text>
         </Box>
 
         <HStack style={styles.header}>
-          <Text style={styles.subTitle}>{user.telefone}</Text>
-          <Text style={styles.subTitle}>{user.email}</Text>
+          <Text style={styles.subTitle}>{localUser.telefone}</Text>
+          <Text style={styles.subTitle}>{localUser.email}</Text>
         </HStack>
         <Divider width={'90%'} alignSelf={'center'} />
         <Text style={styles.share}>

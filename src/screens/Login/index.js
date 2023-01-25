@@ -48,16 +48,16 @@ export default function Login({ navigation, route }) {
     }
 
     const options = {
-      method: 'POST',
-      url: 'https://api.rutherles.com/api/login',
-      headers: { 'Content-Type': 'application/json' },
-      data: { email: email, password: password }
+      method: 'GET',
+      url: 'https://api.freteme.com/api/login',
+      params: { email: email, senha: password },
+      headers: { 'Content-Type': 'application/json' }
     };
+
     axios
       .request(options)
       .then(function (response) {
-        console.log(response.data);
-        const value = JSON.stringify(response.data.user[0]);
+        const value = JSON.stringify(response.data[0]);
         AsyncStorage.multiSet([
           ['@user', value],
           ['@isLoggedIn', 'true']

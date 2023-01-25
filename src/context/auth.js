@@ -3,19 +3,17 @@ import React, { createContext, useState, useEffect, useRef } from 'react';
 import { useNavigation } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
-import polyline from 'polyline';
-
 // create the auth context to provide auth-related values and functions to its children components
-
 export const AuthContext = createContext({});
 function AuthProvider({ children }) {
   const navigation = useNavigation();
   const [email, setEmail] = useState('');
   const [code, setCode] = useState('');
   const [currentScreen, setCurrentScreen] = useState('');
-  const [isSignedIn, setIsSignedIn] = useState(true);
+  const [isSignedIn, setIsSignedIn] = useState(false);
   const [id, setId] = useState([]);
   const [user, setUser] = useState([]);
+  const [localUser, setLocalUser] = useState([]);
   const [order, setOrder] = useState([]);
   const [distance, setDistance] = useState([]);
   const [service, setService] = useState([]);
@@ -25,19 +23,22 @@ function AuthProvider({ children }) {
   const [start, setStart] = useState(false);
   const [acept, setAcept] = useState(false);
   const [news, setNews] = useState(false);
-  const [veicle, setVeicle] = useState('');
+  const [veicle, setVeicle] = useState(null);
   const [coordenadas, setCoordenadas] = useState([]);
   const [initialPosition, setInitialPosition] = useState([]);
   const [finalPosition, setFinalPosition] = useState([]);
+  const [poly, setPoly] = useState(false);
 
-  // vecle
+  // check if the user has a veicle
   function putVeicle(data) {
     setVeicle(data);
   }
-
   // check if the user is logged in by checking the value of the '@isLoggedIn' key in AsyncStorage
 
   const checkIfLoggedIn = async () => {
+    if (isSignedIn) {
+      return;
+    }
     try {
       const isLoggedIn = await AsyncStorage.getItem('@isLoggedIn');
       const user = await AsyncStorage.getItem('@user');
@@ -45,16 +46,14 @@ function AuthProvider({ children }) {
       if (isLoggedIn == 'true') {
         setIsSignedIn(true);
       }
-      setId(JSON.parse(user).id);
-      if (veicle == false) {
-        setWork(false);
-      }
+
+      setLocalUser(JSON.parse(user));
+      setId(JSON.parse(user).cliente_id);
     } catch (error) {
       setIsSignedIn(false);
     }
   };
   checkIfLoggedIn();
-
   // remove the '@isLoggedIn' key from AsyncStorage and set isSignedIn to false
 
   const logout = async () => {
@@ -96,48 +95,55 @@ function AuthProvider({ children }) {
   //  get the service
 
   useEffect(() => {
-    if (id.id != null) {
-      const getUserData = async () => {
-        const localuser = await AsyncStorage.getItem('@user');
-        const id = JSON.parse(localuser);
-        try {
-          const options = {
-            method: 'GET',
-            url: 'https://api.rutherles.com/api/usuario/' + id.id,
-            headers: { 'Content-Type': 'application/json' }
-          };
+    const getUserData = async () => {
+      try {
+        const options = {
+          method: 'GET',
+          url: 'https://api.freteme.com/api/login',
+          params: { email: localUser.email },
+          headers: { 'Content-Type': 'application/json' }
+        };
 
-          const response = await axios.request(options);
+        const response = await axios.request(options);
 
-          setUser(response.data[0]);
-        } catch (error) {
-          console.error(error);
-        }
-      };
+        setUser(response.data[0]);
+        setVeicle(response.data[0].veiculo);
+      } catch (error) {
+        console.error('error');
+      }
+    };
 
-      getUserData();
-    }
-    if (news == false || news == true) {
+    getUserData();
+
+    if (news == false) {
       const options = {
         method: 'GET',
-        url: 'https://fretemeapi2.vercel.app/api/servicos/',
+        url: 'https://api.freteme.com/api/servicos/',
         headers: { 'Content-Type': 'application/json' },
         params: { status: 'pendente' }
       };
       axios
         .request(options)
         .then((response) => {
-          console.log(response.data);
           let data = response.data.reverse();
+
           if (data.length > 0) {
             setOrder(data[0]);
-
             setNews(true);
+
+            {
+              work && setPoly(true);
+            }
           }
         })
         .catch((error) => {
           console.error(error);
         });
+    }
+    if (localUser?.veiculo != null) {
+      setWork(true);
+    } else {
+      setWork(false);
     }
   }, [currentTime]);
   useEffect(() => {
@@ -157,12 +163,14 @@ function AuthProvider({ children }) {
   function putAcept() {
     const options = {
       method: 'PUT',
-      url: 'https://fretemeapi2.vercel.app/api/servicos/',
+      url: 'https://api.freteme.com/api/servicos/',
       headers: {
         'Content-Type': 'application/json',
         Authorization: ''
       },
       data: {
+        veiculo: veicle,
+        motorista_nome: user.nome,
         status: 'aceito',
         motorista_id: id,
         status_pagamento: order.status_pagamento,
@@ -178,9 +186,10 @@ function AuthProvider({ children }) {
       .then(function (response) {
         setAcept(true);
         setNews(null);
+        setPoly(true);
       })
       .catch(function (error) {
-        console.error('error1');
+        console.error(error);
       });
   }
 
@@ -189,12 +198,14 @@ function AuthProvider({ children }) {
   function putStart() {
     const options = {
       method: 'PUT',
-      url: 'https://fretemeapi2.vercel.app/api/servicos/',
+      url: 'https://api.freteme.com/api/servicos/',
       headers: {
         'Content-Type': 'application/json',
         Authorization: ''
       },
       data: {
+        veiculo: veicle,
+        motorista_nome: user.nome,
         status: 'iniciado',
         motorista_id: id,
         status_pagamento: order.status_pagamento,
@@ -221,9 +232,14 @@ function AuthProvider({ children }) {
   function putEnd() {
     const options = {
       method: 'PUT',
-      url: 'https://fretemeapi2.vercel.app/api/servicos/',
-      headers: { 'Content-Type': 'application/json' },
+      url: 'https://api.freteme.com/api/servicos/',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: ''
+      },
       data: {
+        veiculo: veicle,
+        motorista_nome: user.nome,
         status: 'finalizado',
         motorista_id: id,
         status_pagamento: order.status_pagamento,
@@ -246,6 +262,7 @@ function AuthProvider({ children }) {
   }
   // set coordinates of th service
 
+  // get user data
   return (
     <AuthContext.Provider
       value={{
@@ -278,7 +295,10 @@ function AuthProvider({ children }) {
         coordenadas,
         initialPosition,
         finalPosition,
-        coordenadas
+        coordenadas,
+        localUser,
+        poly,
+        localUser
       }}
     >
       {children}

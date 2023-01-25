@@ -45,6 +45,7 @@ export default function Profile({ navigation }) {
   const [value, setValue] = useState(0);
   const [service, setService] = useState([]);
   const [userName, setUserName] = useState([]);
+  const [distance, setDistance] = useState([]);
 
   function Show(item) {
     setModalVisible(true);
@@ -56,30 +57,19 @@ export default function Profile({ navigation }) {
     setDateservice(item.data_servico);
     setOrigin(item.endereco_origem);
     setDestination(item.endereco_destino);
+    setDistance(item.distancia);
   }
+
   useEffect(() => {
     showTab('visible');
 
     // get user data from API
-    const optionsuser = {
-      method: 'GET',
-      url: 'https://api.rutherles.com/api/usuario/' + id,
-      headers: { 'Content-Type': 'application/json' }
-    };
-
-    axios
-      .request(optionsuser)
-      .then(function (response) {
-        console.log(response.data[0]);
-        setUser(response.data[0]);
-      })
-      .catch(function (error) {});
 
     const options = {
       method: 'GET',
-      url: 'https://fretemeapi2.vercel.app/api/servicos/',
+      url: 'https://api.freteme.com/api/servicos/',
       headers: { 'Content-Type': 'application/json' },
-      params: { status: 'pendente' }
+      params: { status: 'finalizado' }
     };
     axios
       .request(options)
@@ -272,10 +262,10 @@ export default function Profile({ navigation }) {
                 Valor: R$ {value}
               </Text>
               <Text color={'#fff'} fontSize={16} fontWeight={'medium'}>
-                Serviço: {service.match(/\b(\w+)\b/)[0]}
+                Serviço: {service}
               </Text>
               <Text color={'#fff'} fontSize={16} fontWeight={'medium'}>
-                Distância: {service.match(/\d+/)} KM
+                Distância: {distance} Km
               </Text>
             </VStack>
             <HStack pb={1} justifyContent={'center'} space={'5%'}>

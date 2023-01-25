@@ -48,8 +48,9 @@ export default function Home({ navigation }) {
     putStart,
     putEnd,
     news,
-    distance,
-    veicle
+    poly,
+
+    localUser
   } = React.useContext(AuthContext);
   const isFocused = useIsFocused();
   const { PROVIDER_GOOGLE } = MapView;
@@ -69,6 +70,7 @@ export default function Home({ navigation }) {
   const [start, setStart] = useState(coordinates.lat);
   const [end, setEnd] = useState(coordinates.lon);
   const [time, setTime] = useState(0);
+  const [distance, setDistance] = useState('');
   const newCoordinates = route.map((coordinate) => ({
     latitude: coordinate[0],
     longitude: coordinate[1]
@@ -110,11 +112,11 @@ export default function Home({ navigation }) {
   useEffect(() => {
     let interval = null;
 
-    if (news === null) {
+    if (acept == null) {
       interval = setInterval(() => {
         setTimer((timer) => timer + 1);
       }, 1000);
-    } else if (news === false) {
+    } else if (acept === false) {
       setTime(
         `${hours.toString().padStart(1, '0')}:${minutes
           .toString()
@@ -125,7 +127,7 @@ export default function Home({ navigation }) {
     }
 
     return () => clearInterval(interval);
-  }, [news]);
+  }, [acept]);
 
   const seconds = timer % 60;
   const minutes = Math.floor(timer / 60) % 60;
@@ -225,6 +227,8 @@ export default function Home({ navigation }) {
 
       try {
         const response = await axios.request(options);
+
+        setDistance(response.data.routes[0].legs[0].distance.text);
         const route = response.data.routes[0].overview_polyline.points;
         const polyline = route;
         setCoordenadas(polyline);
@@ -246,6 +250,7 @@ export default function Home({ navigation }) {
       <View style={gStyle.container}>
         {showMap && (
           <MapView
+            followsUserLocation={news != null ? false : true}
             provider={PROVIDER_GOOGLE}
             customMapStyle={styles.map}
             region={
@@ -269,17 +274,14 @@ export default function Home({ navigation }) {
               { opacity: modalVisible ? 0.1 : 1 }
             ])}
           >
-            {coordenadas != [] &&
-              coordenadas != undefined &&
-              coordenadas != null &&
-              coordenadas && (
-                <Polyline
-                  coordinates={newCoordinates}
-                  strokeColor={Primary}
-                  strokeWidth={5}
-                  lineCap="round"
-                />
-              )}
+            {poly && (
+              <Polyline
+                coordinates={newCoordinates}
+                strokeColor={Primary}
+                strokeWidth={5}
+                lineCap="round"
+              />
+            )}
           </MapView>
         )}
         {!showMap && (
@@ -313,17 +315,17 @@ export default function Home({ navigation }) {
             shadowRadius={1.41}
             elevation={2}
           >
-            {news != null ? (
-              <Text paddingX={2} fontWeight={'bold'} color={TextTertiary}>
-                {news == null ? 'Offline' : 'Online'}
-              </Text>
-            ) : (
+            {acept == null ? (
               <Text paddingX={2} fontWeight={'bold'} color={TextTertiary}>
                 {`${hours.toString().padStart(1, '0')}:${minutes
                   .toString()
                   .padStart(2, '0')}:${seconds.toString().padStart(1, '0')}` +
                   ' '}
                 h
+              </Text>
+            ) : (
+              <Text paddingX={2} fontWeight={'bold'} color={TextTertiary}>
+                {work == false ? 'Offline' : 'Online'}
               </Text>
             )}
             <Switch
@@ -336,10 +338,11 @@ export default function Home({ navigation }) {
           <View style={styles.placeholder} />
         </View>
 
-        {work ? (
+        {work == true || work == null ? (
           <>
             {news == true && (
               <Pending
+                opacity={modalVisible ? 0.1 : 1}
                 modalVisible={modalVisible}
                 avatar={order.foto_user}
                 nome={order.userName}
@@ -374,11 +377,9 @@ export default function Home({ navigation }) {
                 onpress_end={() => putEnd(setModalVisible(true))}
                 avatar={order.foto_user}
                 nome={order.userName}
-                service={order.servico.match(/^\S+/)[0]}
+                service={order.servico}
                 price={order.frete_valor}
-                distance={order.servico
-                  .match(/\d+/)
-                  .find((n) => !isNaN(parseInt(n)))}
+                distance={distance}
               />
             )}
           </>
@@ -458,11 +459,11 @@ export default function Home({ navigation }) {
                 Valor: R$ {order.frete_valor}
               </Text>
               <Text color={'#fff'} fontSize={16} fontWeight={'medium'}>
-                Serviço: {order.servico.match(/^\S+/)[0]}
+                Serviço: {order.servico}
               </Text>
               <Text color={'#fff'} fontSize={16} fontWeight={'medium'}>
                 Distância:
-                {order.servico.match(/\d+/).find((n) => !isNaN(parseInt(n)))} KM
+                {distance} KM
               </Text>
               <Text color={'#fff'} fontSize={16} fontWeight={'medium'}>
                 Tempo de serviço:
@@ -611,7 +612,7 @@ export default function Home({ navigation }) {
           </VStack>
         )}
 
-        {veicle == false && (
+        {localUser == null && (
           <HStack
             position={'absolute'}
             top={'50%'}

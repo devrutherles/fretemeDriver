@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from 'react';
 import {
   KeyboardAvoidingView,
   Platform,
@@ -8,12 +8,12 @@ import {
   TouchableOpacity,
   TouchableWithoutFeedback,
   Keyboard,
-  StyleSheet,
-} from "react-native";
-import { AuthContext } from "../../context/auth";
-import { Input, Button } from "native-base";
-import styles from "./styles";
-import axios from "axios";
+  StyleSheet
+} from 'react-native';
+import { AuthContext } from '../../context/auth';
+import { Input, Button } from 'native-base';
+import styles from './styles';
+import axios from 'axios';
 export default function Email() {
   const { setEmailAndNavigate, showTab, SetCode } = useContext(AuthContext);
   const [email, setEmail] = useState(null);
@@ -23,86 +23,55 @@ export default function Email() {
 
   let codigo = Math.floor(Math.random() * 10000)
     .toString()
-    .padStart(4, "0");
+    .padStart(4, '0');
 
   async function SendEmail() {
     if (email == null || name == null) {
-      alert("Preencha todos os campos");
+      alert('Preencha todos os campos');
     } else {
       setLoad(true);
       try {
         const idResponse = await axios.get(
-          "https://api.rutherles.com/api/usuarios",
+          'https://api.freteme.com/api/usuario',
           {
-            headers: { Accept: "application/json" },
+            headers: { Accept: 'application/json' }
           }
         );
         const allUsers = idResponse.data;
         const userId = allUsers.find(
           (user) => user.email.toLowerCase() === email.toLowerCase()
         );
-
+        console.warn(userId);
         if (userId) {
-          alert("Email já cadastrado");
+          alert('Email já cadastrado');
           setRegister(true);
           setLoad(false);
           return;
         }
       } catch (error) {
         console.error(error);
-        alert("Erro ao verificar usuário existente");
+        alert('Erro ao verificar usuário existente');
         setLoad(false);
         return;
       }
 
       if (register === false) {
-        try {
-          const options = {
-            method: "GET",
-            url:
-              "https://morenacaipira.com/public/envioemail.php?" +
-              "email=" +
-              email +
-              "&" +
-              "codigo=" +
-              codigo +
-              "&" +
-              "mensagemcadastro=" +
-              "Seja bem vindo! ." +
-              "&" +
-              "usuario=" +
-              name +
-              "&" +
-              "servico=" +
-              "Confirmar de cadastro",
-
-            headers: { "Content-Type": "application/json" },
-          };
-
-          const emailResponse = await axios.request(options);
-
-          setLoad(false);
-          setEmailAndNavigate(email);
-          SetCode(codigo);
-          console.log(emailResponse);
-        } catch (error) {
-          console.error(error);
-          setLoad(false);
-          alert("Erro ao enviar email");
-        }
+        setLoad(false);
+        setEmailAndNavigate(email);
+        SetCode(codigo);
       }
     }
   }
   useEffect(() => {
-    showTab("none");
+    showTab('none');
   }, []);
 
   return (
     <KeyboardAvoidingView
       style={styles.container}
       behavior={Platform.select({
-        ios: "padding",
-        android: "height",
+        ios: 'padding',
+        android: 'height'
       })}
     >
       <TouchableWithoutFeedback onPress={Keyboard.dismiss} containerInfo>
@@ -111,13 +80,13 @@ export default function Email() {
             styles.containerInfo,
             Platform.select({
               ios: { marginTop: -10 },
-              android: { marginTop: -45 },
-            }),
+              android: { marginTop: -45 }
+            })
           ])}
         >
           <Image
             alt=""
-            source={require("../../../assets/img/email.gif")}
+            source={require('../../../assets/img/email.gif')}
             style={styles.logoMail}
           />
           <Text style={styles.mailTitle}>Vamos começar</Text>
@@ -127,9 +96,9 @@ export default function Email() {
             onChangeText={setEmail}
             value={email}
             placeholder="Email"
-            autoCapitalize={"none"}
+            autoCapitalize={'none'}
             autoCorrect={false}
-            width={"77.77%"}
+            width={'77.77%'}
             height={42}
             alignSelf="center"
             variant="underlined"
@@ -141,9 +110,9 @@ export default function Email() {
             onChangeText={setName}
             value={name}
             placeholder="Seu nome"
-            autoCapitalize={"words"}
+            autoCapitalize={'words'}
             autoCorrect={false}
-            width={"77.77%"}
+            width={'77.77%'}
             height={42}
             alignSelf="center"
             variant="underlined"

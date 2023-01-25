@@ -1,6 +1,6 @@
-import React, { useContext, useEffect, useState } from "react";
-import { AuthContext } from "../../context/auth";
-import { useNavigation } from "@react-navigation/native";
+import React, { useContext, useEffect, useState } from 'react';
+import { AuthContext } from '../../context/auth';
+import { useNavigation } from '@react-navigation/native';
 import {
   Text,
   Image,
@@ -9,56 +9,57 @@ import {
   Platform,
   TouchableWithoutFeedback,
   Keyboard,
-  View,
-} from "react-native";
-import styles from "./styles";
+  View
+} from 'react-native';
+import styles from './styles';
 import {
   CodeField,
   Cursor,
   useBlurOnFulfill,
-  useClearByFocusCell,
-} from "react-native-confirmation-code-field";
+  useClearByFocusCell
+} from 'react-native-confirmation-code-field';
 
 export default function Code() {
   const { showTab, code } = useContext(AuthContext);
-  const [value, setValue] = useState("");
+  const [value, setValue] = useState(code);
   const ref = useBlurOnFulfill({ value, cellCount: 4 });
   const [props, getCellOnLayoutHandler] = useClearByFocusCell({
     value,
-    setValue,
+    setValue
   });
   const CELL_COUNT = 4;
   const navigation = useNavigation();
 
   useEffect(() => {
-    showTab("none");
+    showTab('none');
   }, []);
 
   function handlesolicitar() {
-    if (value === "") {
-      alert("Digite o código.");
+    if (code === '') {
+      alert('Digite o código.');
       return;
     }
-    if (value !== code) {
-      alert("Código inválido.");
+    if (code !== code) {
+      alert('Código inválido.');
       return;
     }
-    navigation.navigate("Register");
+    navigation.navigate('Register');
   }
   console.warn(code);
+
   return (
     <KeyboardAvoidingView
       style={styles.container}
       behavior={Platform.select({
-        ios: "padding",
-        android: null,
+        ios: 'padding',
+        android: null
       })}
     >
       <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
         <View style={styles.containerMail}>
           <Image
             alt=""
-            source={require("../../../assets/img/email.gif")}
+            source={require('../../../assets/img/email.gif')}
             style={styles.logoMail}
           />
           <Text style={styles.CodeTitle}>Continuando...</Text>
@@ -66,7 +67,7 @@ export default function Code() {
           <CodeField
             ref={ref}
             {...props}
-            value={value}
+            value={code}
             onChangeText={setValue}
             cellCount={CELL_COUNT}
             rootStyle={styles.codeFieldRoot}
