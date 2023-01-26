@@ -1,8 +1,11 @@
 //imports
-import React, { createContext, useState, useEffect, useRef } from 'react';
-import { useNavigation } from '@react-navigation/native';
+
+import React, { createContext, useEffect, useRef, useState } from 'react';
+
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
+import { useNavigation } from '@react-navigation/native';
+
 // create the auth context to provide auth-related values and functions to its children components
 export const AuthContext = createContext({});
 function AuthProvider({ children }) {
@@ -143,7 +146,8 @@ function AuthProvider({ children }) {
     if (localUser?.veiculo != null) {
       setWork(true);
     } else {
-      setWork(false);
+//setWork(false);
+
     }
   }, [currentTime]);
   useEffect(() => {
@@ -158,7 +162,7 @@ function AuthProvider({ children }) {
   function putWork() {
     setWork((prevState) => !prevState);
   }
-  // acept the service
+
 
   function putAcept() {
     const options = {

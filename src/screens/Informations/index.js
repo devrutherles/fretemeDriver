@@ -1,19 +1,24 @@
-import React, { useContext, useEffect } from 'react';
+import { Box, Button, Image, Input, ScrollView, Text } from 'native-base';
+
 import {
-  View,
-  TouchableOpacity,
-  Platform,
   Keyboard,
   KeyboardAvoidingView,
-  TouchableWithoutFeedback
+  Platform,
+  TouchableOpacity,
+  TouchableWithoutFeedback,
+  View,
 } from 'react-native';
-import { Text, Box, Button, ScrollView, Input, Image } from 'native-base';
-import styles from './styles';
-import { useState, useRef } from 'react';
+import React, { useContext, useEffect } from 'react';
+import { useRef, useState } from 'react';
+
 import { AuthContext } from '../../context/auth';
-import axios from 'axios';
-import { useIsFocused } from '@react-navigation/native';
 import { BackgroundSecondary } from '../../components/Colors';
+
+import axios from 'axios';
+import styles from './styles';
+
+import { useIsFocused } from '@react-navigation/native';
+
 
 export default function ProfileInfo({ navigation }) {
   const { id, showTab } = useContext(AuthContext);
@@ -39,8 +44,10 @@ export default function ProfileInfo({ navigation }) {
     if (isFocused) showTab('visible');
     // get user data from API
     axios
-      .get('https://api.rutherles.com/api/usuario/' + id)
+      .get('https://api.freteme.com/api/usuario?cliente_id=' + id)
       .then((response) => {
+console.error(response);
+
         setUser(response.data[0]);
       })
 
@@ -49,26 +56,7 @@ export default function ProfileInfo({ navigation }) {
       });
   }, []);
 
-  useEffect(() => {
-    if (user) {
-      const options = {
-        method: 'GET',
-        url: `http://viacep.com.br/ws/${cep.replace(/[^0-9]/g, '')}/json/`
-      };
 
-      axios
-        .request(options)
-        .then(function (response) {
-          setAddress(response.data);
-          if (response.data.erro) {
-          } else {
-          }
-        })
-        .catch(function (error) {
-          console.error(error);
-        });
-    }
-  }, [cep]);
   useEffect(() => {
     if (user) {
       setNome(user.nome);
@@ -95,6 +83,8 @@ export default function ProfileInfo({ navigation }) {
     }
   }, [user]);
 
+console.error(user);
+
   function Register() {
     setLoad(true);
 
@@ -104,7 +94,7 @@ export default function ProfileInfo({ navigation }) {
     } else {
       const options = {
         method: 'PUT',
-        url: 'https://api.rutherles.com/api/usuario/' + id,
+        url: 'https://api.freteme.com/api/usuario?cliente_id=' + id,
         headers: {
           Accept: 'application/json',
           'Content-Type': 'application/json'
@@ -247,9 +237,8 @@ export default function ProfileInfo({ navigation }) {
                   isDisabled={edit}
                   variant="underlined"
                   value={
-                    cep.length >= 8
-                      ? address.logradouro + ' ,' + address.bairro
-                      : ''
+address.logradouro + ' ,' + address.bairro
+
                   }
                   onChangeText={setLogradouro}
                   width="77.7%"

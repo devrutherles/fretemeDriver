@@ -1,36 +1,41 @@
-import React, { useContext, useEffect } from 'react';
 import {
-  View,
-  TouchableOpacity,
-  Platform,
-  Keyboard,
-  KeyboardAvoidingView,
-  TouchableWithoutFeedback
-} from 'react-native';
-import {
-  Text,
   Box,
   Button,
-  ScrollView,
-  Input,
-  Image,
+  FlatList,
   HStack,
+  Image,
+  Input,
+  ScrollView,
+  Text,
   VStack,
-  FlatList
 } from 'native-base';
-import styles from './styles';
-import { useState, useRef } from 'react';
+import {
+  Keyboard,
+  KeyboardAvoidingView,
+  Platform,
+  TouchableOpacity,
+  TouchableWithoutFeedback,
+  View
+} from 'react-native';
+import { Primary, TextTertiary } from '../../components/Colors';
+import React, { useContext, useEffect } from 'react';
+import { useRef, useState } from 'react';
+
 import { AuthContext } from '../../context/auth';
-import axios from 'axios';
-import { useIsFocused } from '@react-navigation/native';
 import { BackgroundSecondary } from '../../components/Colors';
-import { TextTertiary, Primary } from '../../components/Colors';
+
+import axios from 'axios';
+import styles from './styles';
+
+import { useIsFocused } from '@react-navigation/native';
+import { AuthContext } from '../../context/auth';
+
 export default function Vehicles({ navigation }) {
   const { id, showTab, putVeicle } = useContext(AuthContext);
   const [erro, setErro] = React.useState();
   const [load, setLoad] = useState(false);
-  const isFocused = useIsFocused();
-  const [user, setUser] = useState(null);
+const isFocused = useIsFocused();
+
   const [edit, setEdit] = useState(true);
   const [categoria, setCategoria] = useState('');
   const [marca, setMarca] = useState('');
@@ -38,6 +43,7 @@ export default function Vehicles({ navigation }) {
   const [ano, setAno] = useState('');
   const [placa, setPlaca] = useState('');
   const [cor, setCor] = useState('');
+const { user } = AuthContext();
 
   const Services = [
     {
@@ -72,7 +78,9 @@ export default function Vehicles({ navigation }) {
   };
   JSON.stringify(veiculo);
   function Register() {
-    setLoad(true);
+setLoad(true);
+
+
     const options = {
       method: 'PUT',
       url: 'https://api.freteme.com/api/usuario',
@@ -83,11 +91,13 @@ export default function Vehicles({ navigation }) {
     axios
       .request(options)
       .then(function (response) {
-        console.log(response.data);
+console.error(response.data);
+
         putVeicle(true);
         alert('Veículo cadastrado com sucesso!');
         setLoad(false);
         setEdit(true);
+
       })
       .catch(function (error) {
         setLoad(false);
@@ -98,7 +108,7 @@ export default function Vehicles({ navigation }) {
     showTab('none');
   }, [isFocused]);
 
-  if (user === null) {
+  if (user === 9) {
     return (
       <Box
         flex={1}
@@ -301,7 +311,7 @@ export default function Vehicles({ navigation }) {
                 />
               </Box>
 
-              {load ? (
+              {load == 9  ? (
                 <Button
                   style={styles.infoButton}
                   isLoading

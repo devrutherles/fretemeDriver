@@ -1,32 +1,34 @@
-import React, { useState, useEffect, useRef } from 'react';
+import * as Device from 'expo-device';
 import * as Location from 'expo-location';
-import {
-  Switch,
-  Linking,
-  View,
-  Platform,
-  TouchableOpacity,
-  StyleSheet
-} from 'react-native';
-import { gStyle } from '../../components/Consts';
-import { Center, HStack, Text, Image, VStack, Box } from 'native-base';
-import MapView, { Polyline } from 'react-native-maps';
-import PropTypes from 'prop-types';
-import TouchText from '../../components/TouchText';
-import { useIsFocused } from '@react-navigation/native';
-import { AuthContext } from '../../context/auth';
-import axios from 'axios';
+import * as Notifications from 'expo-notifications';
+
+import { Acepted, Pending, Waiting } from '../../components/Modal';
 import {
   BackgroundSecondary,
-  TextTertiary,
-  Primary
+  Primary,
+  TextTertiary
 } from '../../components/Colors';
-import styles from './styles';
-import { Pending, Waiting, Acepted } from '../../components/Modal';
-import * as Notifications from 'expo-notifications';
-import * as Device from 'expo-device';
-import { MaterialIcons, MaterialCommunityIcons } from '@expo/vector-icons';
+import { Box, Center, HStack, Image, Text, VStack } from 'native-base';
+import {
+  Linking,
+  Platform,
+  StyleSheet,
+  Switch,
+  TouchableOpacity,
+  View,
+} from 'react-native';
+import MapView, { Polyline } from 'react-native-maps';
+import { MaterialCommunityIcons, MaterialIcons } from '@expo/vector-icons';
+import React, { useEffect, useRef, useState } from 'react';
+
+import { AuthContext } from '../../context/auth';
+import PropTypes from 'prop-types';
+import TouchText from '../../components/TouchText';
+import axios from 'axios';
+import { gStyle } from '../../components/Consts';
 import polyline from 'polyline';
+import styles from './styles';
+import { useIsFocused } from '@react-navigation/native';
 
 Notifications.setNotificationHandler({
   handleNotification: async () => ({
@@ -148,7 +150,8 @@ export default function Home({ navigation }) {
     // This listener is fired whenever a user taps on or interacts with a notification (works when app is foregrounded, backgrounded, or killed)
     responseListener.current =
       Notifications.addNotificationResponseReceivedListener((response) => {
-        console.log(response);
+//console.log(response);
+
       });
 
     return () => {

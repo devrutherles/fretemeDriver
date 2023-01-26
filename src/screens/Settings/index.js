@@ -1,15 +1,16 @@
-import { Box, Text, Avatar, HStack, Stack, Divider } from 'native-base';
+import { AntDesign, FontAwesome, MaterialIcons } from '@expo/vector-icons';
+import { Avatar, Box, Divider, HStack, Stack, Text } from 'native-base';
+import { BackgroundSecondary, Error, Primary } from '../../components/Colors';
 import React, { useContext, useEffect } from 'react';
 import { SafeAreaView, TouchableOpacity } from 'react-native';
-import styles from './styles';
-import { MaterialIcons, AntDesign, FontAwesome } from '@expo/vector-icons';
-import { BackgroundSecondary, Error, Primary } from '../../components/Colors';
-import { AuthContext } from '../../context/auth';
 
+import { AuthContext } from '../../context/auth';
+import styles from './styles';
 import { useIsFocused } from '@react-navigation/native';
 
 export default function Settings({ navigation }) {
-  const { showTab, logout, id, localUser } = useContext(AuthContext);
+const { showTab, logout, id, localUser, user } = useContext(AuthContext);
+
 
   useEffect(() => {
     if (isFocused) {
@@ -18,7 +19,8 @@ export default function Settings({ navigation }) {
   });
   console.warn(localUser);
 
-  const name = localUser.nome.match(/^(\S+\s\S+)/);
+const name = user.nome;
+
 
   const isFocused = useIsFocused();
   return (
