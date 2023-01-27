@@ -173,12 +173,12 @@ function AuthProvider({ children }) {
         Authorization: ''
       },
       data: {
-        veiculo: veicle,
+        veiculo: user.veiculo,
         motorista_nome: user.nome,
         status: 'aceito',
         motorista_id: id,
         status_pagamento: order.status_pagamento,
-        fatura_id: order.fatura_id,
+        fatura_id: "ii",
         perfil_motorista:
           'https://yt3.ggpht.com/eULZKQKOu5C6OTPyEdw_vTEsJ2zgnoZSMSwVRuDvk2Hm8qmsovMA7KLcHwwBDcDlME-UfyKb=s88-c-k-c0x00ffffff-no-rj-mo',
         servico_id: order.id
@@ -191,6 +191,8 @@ function AuthProvider({ children }) {
         setAcept(true);
         setNews(null);
         setPoly(true);
+console.error(response.data);
+
       })
       .catch(function (error) {
         console.error(error);
@@ -208,12 +210,12 @@ function AuthProvider({ children }) {
         Authorization: ''
       },
       data: {
-        veiculo: veicle,
+        veiculo: user.veiculo,
         motorista_nome: user.nome,
         status: 'iniciado',
         motorista_id: id,
         status_pagamento: order.status_pagamento,
-        fatura_id: order.fatura_id,
+        fatura_id: "77",
         perfil_motorista:
           'https://yt3.ggpht.com/eULZKQKOu5C6OTPyEdw_vTEsJ2zgnoZSMSwVRuDvk2Hm8qmsovMA7KLcHwwBDcDlME-UfyKb=s88-c-k-c0x00ffffff-no-rj-mo',
         servico_id: order.id
@@ -225,6 +227,8 @@ function AuthProvider({ children }) {
       .then(function (response) {
         setAcept(null);
         setNews(null);
+console.error(response.data);
+
       })
       .catch(function (error) {
         console.error(error);
@@ -242,12 +246,12 @@ function AuthProvider({ children }) {
         Authorization: ''
       },
       data: {
-        veiculo: veicle,
+        veiculo: user.veiculo,
         motorista_nome: user.nome,
         status: 'finalizado',
         motorista_id: id,
         status_pagamento: order.status_pagamento,
-        fatura_id: order.fatura_id,
+        fatura_id: "oo",
         perfil_motorista:
           'https://yt3.ggpht.com/eULZKQKOu5C6OTPyEdw_vTEsJ2zgnoZSMSwVRuDvk2Hm8qmsovMA7KLcHwwBDcDlME-UfyKb=s88-c-k-c0x00ffffff-no-rj-mo',
         servico_id: order.id
@@ -259,6 +263,8 @@ function AuthProvider({ children }) {
         setStart(false);
         setNews(false);
         setAcept(false);
+console.error(response.data);
+
       })
       .catch(function (error) {
         console.error(error);

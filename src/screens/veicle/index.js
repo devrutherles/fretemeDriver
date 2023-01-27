@@ -23,12 +23,9 @@ import { useRef, useState } from 'react';
 
 import { AuthContext } from '../../context/auth';
 import { BackgroundSecondary } from '../../components/Colors';
-
 import axios from 'axios';
 import styles from './styles';
-
 import { useIsFocused } from '@react-navigation/native';
-import { AuthContext } from '../../context/auth';
 
 export default function Vehicles({ navigation }) {
   const { id, showTab, putVeicle } = useContext(AuthContext);
@@ -36,14 +33,22 @@ export default function Vehicles({ navigation }) {
   const [load, setLoad] = useState(false);
 const isFocused = useIsFocused();
 
-  const [edit, setEdit] = useState(true);
-  const [categoria, setCategoria] = useState('');
-  const [marca, setMarca] = useState('');
-  const [modelo, setModelo] = useState('');
-  const [ano, setAno] = useState('');
-  const [placa, setPlaca] = useState('');
-  const [cor, setCor] = useState('');
-const { user } = AuthContext();
+const { user } = useContext(AuthContext);
+const vei = user.veiculo;
+const veiculos = JSON.parse(vei);
+
+const [edit, setEdit] = useState(true);
+
+const [categoria, setCategoria] = useState(
+  veiculos.categoria ? veiculos.categoria : ''
+);
+const [marca, setMarca] = useState(veiculos.marca ? veiculos.marca : '');
+const [modelo, setModelo] = useState(veiculos.modelo ? veiculos.modelo : '');
+const [ano, setAno] = useState(veiculos.ano ? veiculos.ano : '');
+const [placa, setPlaca] = useState(veiculos.placa ? veiculos.placa : '');
+const [cor, setCor] = useState(veiculos.cor ? veiculos.cor : '');
+console.error(categoria);
+
 
   const Services = [
     {
@@ -69,14 +74,14 @@ const { user } = AuthContext();
     }
   ];
   const veiculo = {
-    categoria: categoria,
-    marca: marca,
-    modelo: modelo,
-    ano: ano,
-    placa: placa,
-    cor: cor
+    categoria: veiculos.categoria ? veiculos.categoria : categoria,
+    marca: veiculos.marca ? veiculos.marca : marca,
+    modelo: veiculos.modelo ? veiculos.modelo : modelo,
+    ano: veiculos.ano ? veiculos.ano : ano,
+    placa: veiculos.placa ? veiculos.placa : placa,
+    cor: veiculos.cor ? veiculos.cor : cor
   };
-  JSON.stringify(veiculo);
+
   function Register() {
 setLoad(true);
 
@@ -91,12 +96,12 @@ setLoad(true);
     axios
       .request(options)
       .then(function (response) {
-console.error(response.data);
-
         putVeicle(true);
         alert('Veículo cadastrado com sucesso!');
         setLoad(false);
-        setEdit(true);
+setEdit(true);
+
+
 
       })
       .catch(function (error) {
@@ -108,7 +113,7 @@ console.error(response.data);
     showTab('none');
   }, [isFocused]);
 
-  if (user === 9) {
+  if (!user) {
     return (
       <Box
         flex={1}
@@ -311,7 +316,7 @@ console.error(response.data);
                 />
               </Box>
 
-              {load == 9  ? (
+              {load == 9 ? (
                 <Button
                   style={styles.infoButton}
                   isLoading
